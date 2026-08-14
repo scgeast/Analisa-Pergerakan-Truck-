@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Driver Activity Dashboard - Classic / Premium</title>
+    <title>Driver Activity Dashboard - With Total Row</title>
     <style>
         * {
             box-sizing: border-box;
@@ -100,55 +100,41 @@
             margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-end;
         }
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-            min-width: 100px;
+            gap: 4px;
+            min-width: 140px;
         }
         .filter-group label {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             font-weight: 700;
             color: #2c5a7a;
-            white-space: nowrap;
         }
         .filter-group input, .filter-group select {
-            padding: 5px 8px;
-            border-radius: 12px;
+            padding: 6px 10px;
+            border-radius: 14px;
             border: 1px solid #cbdbe0;
             background: white;
-            font-size: 0.7rem;
-            width: 100%;
-            height: 32px;
+            font-size: 0.75rem;
+        }
+        .filter-group select[multiple] {
+            min-height: 65px;
         }
         .btn-reset {
             background: #dadfe5;
             border: none;
-            padding: 5px 14px;
+            padding: 6px 14px;
             border-radius: 25px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             cursor: pointer;
-            height: 32px;
-            min-width: 60px;
-            margin-bottom: 0;
         }
-        .btn-reset:hover {
-            background: #c8d0d8;
-        }
-        .filter-group-small {
-            flex: 0.6;
-            min-width: 90px;
-        }
-        .filter-group-date {
-            flex: 0.7;
-            min-width: 110px;
-        }
-        .filter-group-driver {
-            flex: 0.5;
-            min-width: 100px;
+        .note-small {
+            font-size: 0.55rem;
+            color: #4a6a85;
         }
 
         .summary-cards {
@@ -290,6 +276,15 @@
             font-weight: 600;
             color: #1e4663;
         }
+        .footer-note .insight-item .badge {
+            display: inline-block;
+            background: #1f6392;
+            color: white;
+            padding: 0 6px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
         .footer-note .insight-item .driver-name-insight {
             font-weight: 600;
             color: #c0392b;
@@ -319,180 +314,8 @@
         .sortable-header:hover {
             background: #dce4ec;
         }
-
-        /* ===== THEME SYSTEM : PREMIUM / CLASSIC ===== */
-        body.theme-premium { background: radial-gradient(circle at 8% 0%, rgba(54,132,255,.14), transparent 28%), radial-gradient(circle at 92% 12%, rgba(105,72,255,.10), transparent 30%), #07111d; color:#e8f1f8; }
-        body.theme-premium .container { background:rgba(8,20,32,.96); border:1px solid rgba(92,153,215,.18); box-shadow:0 22px 70px rgba(0,0,0,.42); }
-        body.theme-premium h1 { color:#f4f8fc; letter-spacing:.1px; }
-        body.theme-premium .compact-upload { background:#0d1d2c; }
-        body.theme-premium .compact-upload .file-label { background:#1677d2; }
-        body.theme-premium .btn-export { background:#17805b; }
-        body.theme-premium .btn-image { background:#7652c8; }
-        body.theme-premium #fileInfo { color:#9bc8ee; background:#10283d; }
-        body.theme-premium .filter-bar { background:linear-gradient(135deg,#102336,#0c1b2a); border:1px solid rgba(90,150,210,.18); }
-        body.theme-premium .filter-group label { color:#83a9c9; }
-        body.theme-premium .filter-group input, body.theme-premium .filter-group select { background:#091725; color:#e8f1f8; border-color:#29455e; }
-        body.theme-premium .btn-reset { background:#203548; color:#c9d8e5; }
-        body.theme-premium .summary-cards { background:transparent; padding:0; }
-        body.theme-premium .card { background:linear-gradient(145deg,#10283e,#0b1b2a); border:1px solid rgba(78,150,220,.20); box-shadow:0 10px 25px rgba(0,0,0,.18); text-align:left; padding:14px 16px; }
-        body.theme-premium .card .num { color:#f3f8fc; }
-        body.theme-premium .card div:last-child { color:#80a4c1; }
-        body.theme-premium .table-wrapper { border-color:#1a354b; background:#081522; }
-        body.theme-premium .data-table { background:#081522; color:#dce8f2; }
-        body.theme-premium .data-table th { background:#102438; color:#91b7d5; border-color:#203b52; }
-        body.theme-premium .data-table th:hover { background:#153049; }
-        body.theme-premium .data-table td { background:#091826; color:#d8e5ef; border-color:#183047; }
-        body.theme-premium .data-table tr:hover td { background:#102637; }
-        body.theme-premium .driver-name { background:#0c1e2d; color:#f0f6fb; }
-        body.theme-premium .total-row, body.theme-premium .total-row td { background:#102438 !important; color:#eef7ff; border-top-color:#4c83ad; }
-        body.theme-premium .qty-cell { background:#102c43 !important; color:#91c9f5; }
-        body.theme-premium .trip-green { background:#176b43 !important; color:#9bffc5; }
-        body.theme-premium .trip-orange { background:#75451c !important; color:#ffd08c; }
-        body.theme-premium .trip-yellow { background:#665518 !important; color:#ffe98b; }
-        body.theme-premium .trip-red { background:#6d252b !important; color:#ffb0b5; }
-        body.theme-premium .date-header { background:#153049 !important; color:#8dc7f4; }
-        body.theme-premium .sub-header { background:#10283d !important; color:#8aaac3; }
-        body.theme-premium .footer-note { background:#0c1c2b; border-top-color:#203b52; color:#9ab7cd; }
-        body.theme-premium .footer-note .insight-title { color:#eef6fc; }
-        body.theme-premium .footer-note .insight-item .bullet { color:#5daeff; }
-        body.theme-premium .footer-note .insight-item .highlight { color:#bfe2ff; }
-        body.theme-premium .footer-note .insight-item .driver-name-insight { color:#ffadb2; background:#45232a; }
-        body.theme-premium .footer-note .insight-item .driver-name-insight-low { color:#ffd18c; background:#49331d; }
-        /* ===== Analytics / Charts ===== */
-        .analytics-grid {
-            display:grid;
-            grid-template-columns:minmax(0, 1.55fr) minmax(360px, 1fr);
-            gap:14px;
-            margin:0 0 18px 0;
-        }
-        .analytics-card {
-            background:#f7fafc;
-            border:1px solid #dbe6ee;
-            border-radius:16px;
-            padding:14px 16px 16px;
-            min-height:300px;
-            overflow:hidden;
-        }
-        .analytics-title {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:10px;
-            margin-bottom:10px;
-            color:#24384a;
-            font-size:.78rem;
-            font-weight:800;
-        }
-        .analytics-title span {
-            color:#7890a3;
-            font-size:.58rem;
-            font-weight:600;
-        }
-        .chart-box { height:245px; position:relative; }
-        .chart-box canvas { width:100% !important; height:100% !important; }
-        .top-driver-list { display:flex; flex-direction:column; gap:7px; }
-        .top-driver {
-            display:grid;
-            grid-template-columns:34px minmax(0,1fr) 125px 36px;
-            align-items:center;
-            gap:9px;
-            min-height:43px;
-            padding:7px 9px;
-            border:1px solid #e1e9ef;
-            background:#fff;
-            border-radius:10px;
-        }
-        .top-rank {
-            width:28px; height:28px; border-radius:8px;
-            display:flex; align-items:center; justify-content:center;
-            background:#eaf3fa; color:#2773a7; font-size:.68rem; font-weight:800;
-        }
-        .top-driver-name {
-            min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-            color:#344b5f; font-size:.64rem; font-weight:650;
-        }
-        .top-driver-bar { height:7px; background:#e8eef3; border-radius:20px; overflow:hidden; }
-        .top-driver-bar span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#2788e8,#56c3f2); }
-        .top-driver-value { text-align:right; color:#203a51; font-size:.72rem; font-weight:800; }
-
-        body.theme-premium .analytics-card {
-            background:linear-gradient(145deg,#0b1c2b,#081522);
-            border-color:#23425b;
-            box-shadow:0 12px 30px rgba(0,0,0,.16);
-        }
-        body.theme-premium .analytics-title { color:#edf6fd; }
-        body.theme-premium .analytics-title span { color:#6e91b1; }
-        body.theme-premium .top-driver {
-            background:rgba(255,255,255,.025); border-color:#1d354a;
-        }
-        body.theme-premium .top-rank { background:#102d46; color:#70baff; }
-        body.theme-premium .top-driver-name { color:#d7e5ef; }
-        body.theme-premium .top-driver-bar { background:#102638; }
-        body.theme-premium .top-driver-value { color:#f0f7fd; }
-
-        @media (max-width: 1000px) {
-            .analytics-grid { grid-template-columns:1fr; }
-        }
-        @media (max-width: 650px) {
-            .top-driver { grid-template-columns:30px minmax(0,1fr) 75px 30px; }
-            .analytics-card { min-height:270px; }
-            .chart-box { height:220px; }
-        }
-
-        .theme-toggle { display:flex; align-items:center; gap:4px; background:#edf2f7; border:1px solid #d4dde6; border-radius:999px; padding:3px; }
-        .theme-toggle button { border:0; border-radius:999px; padding:6px 10px; font-size:.62rem; font-weight:700; cursor:pointer; background:transparent; color:#536b7e; }
-        .theme-toggle button.active { background:#1e4663; color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-        body.theme-premium .theme-toggle { background:#0d1e2e; border-color:#29445c; }
-        body.theme-premium .theme-toggle button { color:#7f9eb7; }
-        body.theme-premium .theme-toggle button.active { background:#1677d2; color:white; }
-        .premium-only { display:none; }
-        body.theme-premium .premium-only { display:block; }
-        .classic-only { display:block; }
-        body.theme-premium .classic-only { display:none; }
-        .theme-badge { font-size:.58rem; color:#6f8aa0; padding:0 4px; white-space:nowrap; }
-        body.theme-premium .theme-badge { color:#6e91b1; }
-
-
-        /* ===== Multi-select Plant ===== */
-        #plantFilter {
-            min-height: 92px;
-            max-height: 125px;
-            overflow-y: auto;
-            cursor: pointer;
-        }
-        #plantFilter option {
-            padding: 5px 8px;
-            border-radius: 5px;
-        }
-        #plantFilter option:checked {
-            font-weight: 700;
-        }
-        .filter-hint {
-            margin-top: 3px;
-            font-size: .56rem;
-            color: #7890a7;
-            line-height: 1.2;
-        }
-        body.theme-premium .filter-hint { color:#6688a8; }
-        body.theme-premium #plantFilter option:checked { background:#173b5c; color:#8fc9ff; }
-
         @media (max-width: 700px) {
-            .filter-group { 
-                min-width: 100%; 
-                flex: 1;
-            }
-            .filter-group-small {
-                flex: 1;
-                min-width: 100%;
-            }
-            .filter-group-date {
-                flex: 1;
-                min-width: 100%;
-            }
-            .filter-group-driver {
-                flex: 1;
-                min-width: 100%;
-            }
+            .filter-group { min-width: 100%; }
             .header-row { flex-direction: column; align-items: stretch; }
             .header-buttons { justify-content: space-between; }
             .data-table th, .data-table td {
@@ -502,17 +325,12 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="header-row">
         <h1>🚚 Driver Activity Dashboard</h1>
         <div class="header-buttons">
-            <div class="theme-toggle" title="Pilih tampilan dashboard">
-                <button id="classicThemeBtn" class="active" type="button">Classic</button>
-                <button id="premiumThemeBtn" type="button">Premium</button>
-            </div>
             <button class="btn-image" id="exportImageBtn">📸 Download Full Table Image</button>
             <button class="btn-export" id="exportBtn">📎 Export Excel</button>
             <div class="compact-upload">
@@ -524,55 +342,15 @@
     </div>
 
     <div class="filter-bar" id="filterPanel" style="display: none;">
-        <div class="filter-group filter-group-date">
-            <label>Start Date</label>
-            <input type="date" id="startDateFilter">
-        </div>
-        <div class="filter-group filter-group-date">
-            <label>End Date</label>
-            <input type="date" id="endDateFilter">
-        </div>
-        <div class="filter-group filter-group-small">
-            <label>Area (Province)</label>
-            <select id="areaFilter">
-                <option value="all">All Areas</option>
-            </select>
-        </div>
-        <div class="filter-group filter-group-small">
-            <label>Plant Name</label>
-            <select id="plantFilter" multiple size="4" aria-label="Plant Name - multi select">
-                <option value="all">All Plants</option>
-            </select>
-            <div class="filter-hint">Ctrl / Cmd + klik untuk pilih lebih dari 1 plant</div>
-        </div>
-        <div class="filter-group filter-group-driver">
-            <label>Driver Type</label>
-            <select id="driverTypeFilter">
-                <option value="all">All Drivers</option>
-                <option value="libero">Libero Only</option>
-                <option value="non-libero">Non-Libero</option>
-            </select>
-        </div>
+        <div class="filter-group"><label>Start Date</label><input type="date" id="startDateFilter"></div>
+        <div class="filter-group"><label>End Date</label><input type="date" id="endDateFilter"></div>
+        <div class="filter-group"><label>Area (Province)</label><select id="areaFilter" multiple size="3"></select><div class="note-small">Ctrl+klik multi pilih</div></div>
+        <div class="filter-group"><label>Plant Name</label><select id="plantFilter" multiple size="3"></select><div class="note-small">Otomatis filter area</div></div>
+        <div class="filter-group"><label>Driver Type</label><select id="driverTypeFilter"><option value="all">All Drivers</option><option value="libero">Libero Only</option><option value="non-libero">Non-Libero</option></select></div>
         <button class="btn-reset" id="resetFiltersBtn">Reset</button>
     </div>
 
     <div id="summaryArea" class="summary-cards" style="display: none;"></div>
-    <div id="analyticsArea" class="analytics-grid" style="display:none;">
-        <div class="analytics-card">
-            <div class="analytics-title">
-                <span style="color:inherit;font-size:.78rem;font-weight:800;">📈 Trips Trend</span>
-                <span>Daily total trips</span>
-            </div>
-            <div class="chart-box"><canvas id="tripTrendChart"></canvas></div>
-        </div>
-        <div class="analytics-card">
-            <div class="analytics-title">
-                <span style="color:inherit;font-size:.78rem;font-weight:800;">🏆 Top 5 Drivers</span>
-                <span>By total trips</span>
-            </div>
-            <div id="topDriversList" class="top-driver-list"></div>
-        </div>
-    </div>
     <div id="tableContainer" style="display: none;">
         <div class="table-wrapper" id="tableWrapperForImage">
             <table class="data-table" id="resultTable">
@@ -592,7 +370,6 @@
 <script>
     let rawRecords = [];
     let currentAggregated = null;
-    let tripTrendChart = null;
     let currentSortColumn = 'Total Trip';
     let currentSortDirection = 'desc';
     let driverDataArray = [];
@@ -610,23 +387,6 @@
     const exportImageBtn = document.getElementById('exportImageBtn');
     const insightFooter = document.getElementById('insightFooter');
     const insightContent = document.getElementById('insightContent');
-
-    const classicThemeBtn = document.getElementById('classicThemeBtn');
-    const premiumThemeBtn = document.getElementById('premiumThemeBtn');
-
-    function setTheme(theme) {
-        document.body.classList.toggle('theme-premium', theme === 'premium');
-        classicThemeBtn.classList.toggle('active', theme === 'classic');
-        premiumThemeBtn.classList.toggle('active', theme === 'premium');
-        localStorage.setItem('driverDashboardTheme', theme);
-        if (typeof currentAggregated !== 'undefined' && currentAggregated) {
-            renderAnalytics(currentAggregated);
-        }
-    }
-
-    classicThemeBtn.addEventListener('click', () => setTheme('classic'));
-    premiumThemeBtn.addEventListener('click', () => setTheme('premium'));
-    setTheme(localStorage.getItem('driverDashboardTheme') || 'classic');
     
     function formatNumber(num) {
         if (num === undefined || num === null) return '0';
@@ -740,7 +500,7 @@
         }
     }
     
-    function applyFilters(records, startDateStr, endDateStr, selectedArea, selectedPlant, driverTypeVal) {
+    function applyFilters(records, startDateStr, endDateStr, selectedAreas, selectedPlants, driverTypeVal) {
         let filtered = [...records];
         if (startDateStr) {
             let start = new Date(startDateStr); start.setHours(0,0,0,0);
@@ -750,18 +510,8 @@
             let end = new Date(endDateStr); end.setHours(23,59,59,999);
             filtered = filtered.filter(r => r.dateObj <= end);
         }
-        if (selectedArea && selectedArea !== 'all') {
-            filtered = filtered.filter(r => r.province === selectedArea);
-        }
-        // Plant dapat memilih lebih dari satu. selectedPlant berupa array.
-        const selectedPlants = Array.isArray(selectedPlant)
-            ? selectedPlant.filter(p => p && p !== 'all')
-            : (selectedPlant && selectedPlant !== 'all' ? [selectedPlant] : []);
-
-        if (selectedPlants.length > 0) {
-            const selectedSet = new Set(selectedPlants);
-            filtered = filtered.filter(r => selectedSet.has(r.plant));
-        }
+        if (selectedAreas && selectedAreas.length > 0) filtered = filtered.filter(r => selectedAreas.includes(r.province));
+        if (selectedPlants && selectedPlants.length > 0) filtered = filtered.filter(r => selectedPlants.includes(r.plant));
         if (driverTypeVal === 'libero') filtered = filtered.filter(r => r.driverType === 'libero');
         else if (driverTypeVal === 'non-libero') filtered = filtered.filter(r => r.driverType === 'non-libero');
         return filtered;
@@ -844,8 +594,8 @@
             
             switch(column) {
                 case 'No':
-                    valA = a._originalNo || a.no;
-                    valB = b._originalNo || b.no;
+                    valA = a.no;
+                    valB = b.no;
                     break;
                 case 'Driver Name':
                     valA = a.driverName.toLowerCase();
@@ -876,7 +626,9 @@
                     valB = b.totalQty;
                     break;
                 default:
+                    // Untuk kolom tanggal dan distribusi
                     if (column.includes('/')) {
+                        // Kolom tanggal - Qty atau Trip
                         if (column.includes('Qty')) {
                             valA = a.dailyQty[column] || 0;
                             valB = b.dailyQty[column] || 0;
@@ -885,6 +637,7 @@
                             valB = b.dailyTrip[column] || 0;
                         }
                     } else if (column.includes('Trip') && !column.includes('Total') && !column.includes('Avg')) {
+                        // Kolom distribusi (0Trip, 1Trip, dst)
                         let tripVal = parseInt(column);
                         valA = a.tripDistribution[tripVal] || 0;
                         valB = b.tripDistribution[tripVal] || 0;
@@ -909,10 +662,13 @@
         let totalTripsAll = totalTrips;
         let totalQtyAll = totalQty;
         
+        // Calculate averages
         let avgTripPerDriver = totalTripsAll / totalDriversCount;
         let avgQtyPerTrip = totalQtyAll / totalTripsAll;
         let avgTripPerDay = totalTripsAll / (totalDays * totalDriversCount);
+        let avgQtyPerDay = totalQtyAll / (totalDays * totalDriversCount);
         
+        // Find top driver
         let topDriver = null;
         let maxTrips = 0;
         let topDriverName = '';
@@ -924,6 +680,7 @@
             }
         }
         
+        // Find drivers with zero trips and low activity
         let zeroTripDrivers = [];
         let lowPerformerDrivers = [];
         let highPerformerCount = 0;
@@ -938,6 +695,7 @@
             }
         }
         
+        // Libero vs Non-Libero analysis
         let liberoCount = 0;
         let liberoTrips = 0;
         let nonLiberoCount = 0;
@@ -952,27 +710,33 @@
             }
         }
         
+        // Build insights
         insights.push(`📌 Total <span class="highlight">${totalDriversCount}</span> driver aktif dalam <span class="highlight">${totalDays}</span> hari dengan total <span class="highlight">${formatNumber(totalTripsAll)}</span> trip dan volume <span class="highlight">${formatNumber(Math.round(totalQtyAll * 10)/10)} m³</span>`);
+        
         insights.push(`📌 Rata-rata trip per driver: <span class="highlight">${avgTripPerDriver.toFixed(1)}</span> trip | Rata-rata trip per hari: <span class="highlight">${avgTripPerDay.toFixed(2)}</span> trip | Rata-rata volume per trip: <span class="highlight">${avgQtyPerTrip.toFixed(1)} m³</span>`);
         
         if (topDriver) {
             insights.push(`🏆 Driver terbaik: <span class="highlight">${topDriverName}</span> dengan <span class="highlight">${topDriver.totalTrips}</span> trip (${topDriver.avgTripPerDay.toFixed(2)} trip/hari) dan volume <span class="highlight">${formatNumber(Math.round(topDriver.totalQty * 10)/10)} m³</span>`);
         }
         
+        // Insight untuk driver tanpa aktivitas
         if (zeroTripDrivers.length > 0) {
             let driverNames = zeroTripDrivers.map(name => `<span class="driver-name-insight">${escapeHtml(name)}</span>`).join(', ');
             insights.push(`⚠️ <span class="highlight">${zeroTripDrivers.length}</span> driver tanpa aktivitas: ${driverNames} - perlu evaluasi dan penjadwalan ulang`);
         }
         
+        // Insight untuk driver dengan aktivitas rendah
         if (lowPerformerDrivers.length > 0) {
             let driverNames = lowPerformerDrivers.map(name => `<span class="driver-name-insight-low">${escapeHtml(name)}</span>`).join(', ');
             insights.push(`⚠️ <span class="highlight">${lowPerformerDrivers.length}</span> driver dengan aktivitas rendah (&lt;5 trip): ${driverNames} - perlu perhatian dan motivasi`);
         }
         
+        // Insight untuk driver performa tinggi (tanpa nama)
         if (highPerformerCount > 0) {
             insights.push(`⭐ <span class="highlight">${highPerformerCount}</span> driver dengan performa tinggi (≥15 trip) - berikan apresiasi dan pertahankan motivasi`);
         }
         
+        // Libero vs Non-Libero comparison
         if (liberoCount > 0 && nonLiberoCount > 0) {
             let liberoAvg = (liberoCount > 0) ? (liberoTrips / liberoCount) : 0;
             let nonLiberoAvg = (nonLiberoCount > 0) ? (nonLiberoTrips / nonLiberoCount) : 0;
@@ -990,7 +754,6 @@
         if (driversMap.size === 0) {
             document.getElementById('tableContainer').style.display = 'none';
             document.getElementById('summaryArea').style.display = 'none';
-            document.getElementById('analyticsArea').style.display = 'none';
             document.getElementById('noDataMsg').style.display = 'block';
             document.getElementById('noDataMsg').innerHTML = '⚠️ Tidak ada data sesuai filter';
             insightFooter.style.display = 'none';
@@ -1025,8 +788,7 @@
             totalAllDayWork += data.dayWork;
         }
         
-        // Second pass: build data array dengan nomor urut asli
-        let tempArray = [];
+        // Second pass: build data array
         for (let [driverName, data] of driversMap.entries()) {
             let dailyQty = {};
             let dailyTrip = {};
@@ -1041,8 +803,8 @@
                 tripDist[i] = data.tripDistribution.get(i) || 0;
             }
             
-            tempArray.push({
-                _originalNo: idx,
+            driverDataArray.push({
+                no: idx++,
                 driverName: driverName,
                 plant: data.plant,
                 avgDistance: data.avgDistance,
@@ -1055,19 +817,10 @@
                 tripDistribution: tripDist,
                 rawData: data
             });
-            idx++;
         }
         
         // Apply sorting
-        sortDriverData(tempArray, currentSortColumn, currentSortDirection);
-        
-        // Re-assign nomor urut berdasarkan posisi setelah sorting
-        driverDataArray = tempArray.map((item, index) => {
-            return {
-                ...item,
-                no: index + 1
-            };
-        });
+        sortDriverData(driverDataArray, currentSortColumn, currentSortDirection);
         
         // Build table
         let distHeaders = [];
@@ -1077,8 +830,9 @@
         let rightCols = [...distHeaders];
         let dateCols = [...allDates];
         
-        // Build header with sort icons
+        // Build header with sort icons - FIXED STRUCTURE
         let headerTop = `<tr>`;
+        // Left columns (single row headers)
         for (let col of leftCols) {
             let sortIcon = '';
             if (col === currentSortColumn) {
@@ -1086,6 +840,7 @@
             }
             headerTop += `<th rowspan="2" class="sortable-header" onclick="sortTable('${col}')">${col} ${sortIcon}</th>`;
         }
+        // Date columns (with colspan=2 for sub-headers)
         for (let dt of dateCols) {
             let sortIcon = '';
             if (dt === currentSortColumn) {
@@ -1093,6 +848,7 @@
             }
             headerTop += `<th colspan="2" class="sortable-header date-header" onclick="sortTable('${dt}')">${dt} ${sortIcon}</th>`;
         }
+        // Right columns (distribution)
         for (let col of rightCols) {
             let sortIcon = '';
             if (col === currentSortColumn) {
@@ -1102,6 +858,7 @@
         }
         headerTop += `</tr>`;
         
+        // Bottom header row (sub-headers for dates)
         let headerBottom = `<tr>`;
         for (let dt of dateCols) {
             let sortIconQty = '';
@@ -1195,7 +952,6 @@
         `;
         document.getElementById('summaryArea').innerHTML = summaryHtml;
         document.getElementById('summaryArea').style.display = 'flex';
-        renderAnalytics(aggregated);
         document.getElementById('noDataMsg').style.display = 'none';
         
         // Generate and display insights
@@ -1212,76 +968,14 @@
         }
     }
     
-    function renderAnalytics(aggregated) {
-        const analyticsArea = document.getElementById('analyticsArea');
-        if (!analyticsArea || !aggregated || !aggregated.driversMap || aggregated.driversMap.size === 0) {
-            if (analyticsArea) analyticsArea.style.display = 'none';
-            if (tripTrendChart) { tripTrendChart.destroy(); tripTrendChart = null; }
-            return;
-        }
-
-        analyticsArea.style.display = 'grid';
-        const dates = aggregated.allDates || [];
-        const dailyTrips = dates.map(dt => {
-            let total = 0;
-            aggregated.driversMap.forEach(data => {
-                const day = data.dailyMap.get(dt);
-                if (day) total += Number(day.trips || 0);
-            });
-            return total;
-        });
-
-        const canvas = document.getElementById('tripTrendChart');
-        if (canvas && window.Chart) {
-            const premium = document.body.classList.contains('theme-premium');
-            const gridColor = premium ? 'rgba(112,157,190,.10)' : 'rgba(70,100,125,.10)';
-            const tickColor = premium ? '#6e91b1' : '#71889a';
-            if (tripTrendChart) tripTrendChart.destroy();
-            tripTrendChart = new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: dates.map(d => d.slice(0,5)),
-                    datasets: [{
-                        label: 'Trips', data: dailyTrips,
-                        borderColor: '#4aa3ff', backgroundColor: 'rgba(74,163,255,.14)',
-                        borderWidth: 3, fill: true, tension: .38,
-                        pointRadius: 3, pointHoverRadius: 5,
-                        pointBackgroundColor: '#8bcaff', pointBorderColor: '#0b2033', pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive:true, maintainAspectRatio:false, animation:{duration:500},
-                    plugins:{ legend:{display:false}, tooltip:{displayColors:false, callbacks:{label:ctx=>` ${ctx.parsed.y} trips`}}},
-                    scales:{
-                        x:{grid:{color:gridColor}, ticks:{color:tickColor,font:{size:10}}},
-                        y:{beginAtZero:true, suggestedMax:Math.max(...dailyTrips,1)*1.08, grid:{color:gridColor}, ticks:{color:tickColor,font:{size:10},precision:0}}
-                    }
-                }
-            });
-        }
-
-        const top = Array.from(aggregated.driversMap.entries())
-            .sort((a,b) => b[1].totalTrips - a[1].totalTrips)
-            .slice(0,5);
-        const maxTrips = top.length ? Math.max(top[0][1].totalTrips,1) : 1;
-        document.getElementById('topDriversList').innerHTML = top.map(([name,data],i) => {
-            const pct = Math.max(3, Math.round((data.totalTrips/maxTrips)*100));
-            return `<div class="top-driver">
-                <div class="top-rank">${i+1}</div>
-                <div class="top-driver-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-                <div class="top-driver-bar"><span style="width:${pct}%"></span></div>
-                <div class="top-driver-value">${formatNumber(data.totalTrips)}</div>
-            </div>`;
-        }).join('');
-    }
-
     function sortTable(column) {
         if (currentSortColumn === column) {
             currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
         } else {
             currentSortColumn = column;
-            currentSortDirection = 'desc';
+            currentSortDirection = 'desc'; // Default descending (terbesar ke terkecil)
         }
+        // Re-render with new sort
         if (currentAggregated) {
             renderFilteredResult(currentAggregated);
         }
@@ -1289,80 +983,29 @@
     
     function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => (m==='&'?'&amp;':m==='<'?'&lt;':'&gt;')); }
     
-    // ===== PERBAIKAN UTAMA: Fungsi update Plant berdasarkan Area =====
-    function getSelectedPlants() {
-        return Array.from(plantSelect.selectedOptions)
-            .map(opt => opt.value)
-            .filter(v => v && v !== 'all');
-    }
-
-    function setSelectedPlants(values) {
-        const selected = new Set(Array.isArray(values) ? values : []);
-        Array.from(plantSelect.options).forEach(opt => {
-            opt.selected = opt.value === 'all'
-                ? selected.size === 0
-                : selected.has(opt.value);
-        });
-    }
-
-    // Plant otomatis mengikuti Area yang dipilih.
-    // Jika Area = East, hanya plant East yang muncul; jika Bali, hanya plant Bali.
-    // Pilihan plant yang masih valid akan dipertahankan.
-    function updatePlantOptionsBySelectedArea() {
+    function updatePlantOptionsBySelectedAreas() {
         if (!rawRecords.length) return;
-
-        const selectedArea = areaSelect.value;
-        const previousSelected = getSelectedPlants();
-        const plantsSet = new Set();
-
-        rawRecords.forEach(rec => {
-            if (selectedArea === 'all' || rec.province === selectedArea) {
-                if (rec.plant) plantsSet.add(rec.plant);
-            }
-        });
-
-        const plantOptions = Array.from(plantsSet).sort((a,b) => a.localeCompare(b));
-
+        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
+        let plantsSet = new Set();
+        if (selectedAreas.length === 0) rawRecords.forEach(rec => plantsSet.add(rec.plant));
+        else rawRecords.forEach(rec => { if (selectedAreas.includes(rec.province)) plantsSet.add(rec.plant); });
+        let plantOptions = Array.from(plantsSet).sort();
+        let previouslySelected = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
         plantSelect.innerHTML = '';
-
-        const allOpt = document.createElement('option');
-        allOpt.value = 'all';
-        allOpt.textContent = 'All Plants';
-        plantSelect.appendChild(allOpt);
-
-        plantOptions.forEach(plant => {
-            const opt = document.createElement('option');
-            opt.value = plant;
-            opt.textContent = plant;
-            plantSelect.appendChild(opt);
-        });
-
-        // Hanya pertahankan plant yang masih berada di area terpilih.
-        const validSelected = previousSelected.filter(p => plantsSet.has(p));
-        setSelectedPlants(validSelected);
+        plantOptions.forEach(p => { let opt = document.createElement('option'); opt.value = p; opt.textContent = p; if (previouslySelected.includes(p)) opt.selected = true; plantSelect.appendChild(opt); });
     }
-
+    
     function refreshDashboard() {
-        if (!rawRecords.length) { 
-            document.getElementById('tableContainer').style.display = 'none'; 
-            document.getElementById('summaryArea').style.display = 'none'; 
-            document.getElementById('analyticsArea').style.display = 'none';
-            document.getElementById('noDataMsg').style.display = 'block'; 
-            insightFooter.style.display = 'none'; 
-            return; 
-        }
+        if (!rawRecords.length) { document.getElementById('tableContainer').style.display = 'none'; document.getElementById('summaryArea').style.display = 'none'; document.getElementById('noDataMsg').style.display = 'block'; insightFooter.style.display = 'none'; return; }
         let startDate = startDateInput.value, endDate = endDateInput.value;
-        let selectedArea = areaSelect.value;
-        let selectedPlant = getSelectedPlants();
+        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
+        let selectedPlants = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
         let driverTypeVal = driverTypeSelect.value;
-        let filtered = applyFilters(rawRecords, startDate, endDate, selectedArea, selectedPlant, driverTypeVal);
+        let filtered = applyFilters(rawRecords, startDate, endDate, selectedAreas, selectedPlants, driverTypeVal);
         let aggregated = aggregateDrivers(filtered);
         renderFilteredResult(aggregated);
-
-        // Pastikan daftar Plant selalu sesuai Area, tetapi jangan menghapus
-        // multi-selection yang masih valid.
         updateAreaDropdown();
-        updatePlantOptionsBySelectedArea();
+        updatePlantOptionsBySelectedAreas();
     }
     
     function updateAreaDropdown() {
@@ -1370,32 +1013,17 @@
         let areas = new Set();
         rawRecords.forEach(r => areas.add(r.province));
         let areaList = Array.from(areas).sort();
-        let currentValue = areaSelect.value;
-        areaSelect.innerHTML = '<option value="all">All Areas</option>';
-        areaList.forEach(a => { 
-            let opt = document.createElement('option'); 
-            opt.value = a; 
-            opt.textContent = a; 
-            if (currentValue === a) opt.selected = true;
-            areaSelect.appendChild(opt); 
-        });
-        // Update plant options setelah area berubah
-        updatePlantOptionsBySelectedArea();
+        let previouslySelected = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
+        areaSelect.innerHTML = '';
+        areaList.forEach(a => { let opt = document.createElement('option'); opt.value = a; opt.textContent = a; if (previouslySelected.includes(a)) opt.selected = true; areaSelect.appendChild(opt); });
+        updatePlantOptionsBySelectedAreas();
     }
     
     function resetFilters() {
-        if (rawRecords.length) { 
-            let { minDate, maxDate } = getDateRange(rawRecords); 
-            if (minDate && maxDate) { 
-                startDateInput.value = minDate.toISOString().split('T')[0]; 
-                endDateInput.value = maxDate.toISOString().split('T')[0]; 
-            } 
-        } else { 
-            startDateInput.value = ''; 
-            endDateInput.value = ''; 
-        }
-        areaSelect.value = 'all';
-        setSelectedPlants([]);
+        if (rawRecords.length) { let { minDate, maxDate } = getDateRange(rawRecords); if (minDate && maxDate) { startDateInput.value = minDate.toISOString().split('T')[0]; endDateInput.value = maxDate.toISOString().split('T')[0]; } }
+        else { startDateInput.value = ''; endDateInput.value = ''; }
+        for (let opt of areaSelect.options) opt.selected = false;
+        for (let opt of plantSelect.options) opt.selected = false;
         driverTypeSelect.value = 'all';
         currentSortColumn = 'Total Trip';
         currentSortDirection = 'desc';
@@ -1446,6 +1074,7 @@
             exportData.push(row);
         }
         
+        // Baris TOTAL
         let totalRow = ['TOTAL', `${driversMap.size} Drivers`, '', ''];
         let avgDistAll = totalDistanceCount > 0 ? (totalAllDistance / totalDistanceCount) : 0;
         totalRow.push(Math.round(avgDistAll * 10)/10);
@@ -1530,39 +1159,14 @@
         }
     }
     
+    // Make sortTable globally accessible
     window.sortTable = sortTable;
     
-    areaSelect.addEventListener('change', function() {
-        updatePlantOptionsBySelectedArea();
-        refreshDashboard();
-    });
-    
-    plantSelect.addEventListener('change', function() {
-        // Jika All Plants dipilih, batalkan semua pilihan plant lainnya.
-        const selected = Array.from(plantSelect.selectedOptions).map(o => o.value);
-        if (selected.includes('all')) {
-            const nonAll = selected.filter(v => v !== 'all');
-            if (nonAll.length > 0) {
-                setSelectedPlants(nonAll);
-            } else {
-                setSelectedPlants([]);
-            }
-        }
-        refreshDashboard();
-    });
-    
-    startDateInput.addEventListener('change', function() {
-        refreshDashboard();
-    });
-    
-    endDateInput.addEventListener('change', function() {
-        refreshDashboard();
-    });
-    
-    driverTypeSelect.addEventListener('change', function() {
-        refreshDashboard();
-    });
-    
+    areaSelect.addEventListener('change', () => { updatePlantOptionsBySelectedAreas(); refreshDashboard(); });
+    plantSelect.addEventListener('change', () => refreshDashboard());
+    startDateInput.addEventListener('change', () => refreshDashboard());
+    endDateInput.addEventListener('change', () => refreshDashboard());
+    driverTypeSelect.addEventListener('change', () => refreshDashboard());
     resetBtn.addEventListener('click', resetFilters);
     exportBtn.addEventListener('click', exportToExcel);
     exportImageBtn.addEventListener('click', exportAsImage);
@@ -1583,33 +1187,25 @@
                 rawRecords = records;
                 setDateFilterRange(rawRecords);
                 driverTypeSelect.value = 'all';
-                areaSelect.innerHTML = '<option value="all">All Areas</option>';
-                plantSelect.innerHTML = '<option value="all">All Plants</option>';
-                setSelectedPlants([]);
+                areaSelect.innerHTML = '';
+                plantSelect.innerHTML = '';
                 currentSortColumn = 'Total Trip';
                 currentSortDirection = 'desc';
                 updateAreaDropdown();
-                updatePlantOptionsBySelectedArea();
+                updatePlantOptionsBySelectedAreas();
                 refreshDashboard();
                 filterPanel.style.display = 'flex';
                 fileInfoSpan.innerHTML = `✅ ${file.name} (${rawRecords.length} trips)`;
-            } catch(err) { 
-                fileInfoSpan.innerHTML = `❌ Error`; 
-                document.getElementById('noDataMsg').innerHTML = `Error: ${err.message}`; 
-                filterPanel.style.display = 'none'; 
-            }
+            } catch(err) { fileInfoSpan.innerHTML = `❌ Error`; document.getElementById('noDataMsg').innerHTML = `Error: ${err.message}`; filterPanel.style.display = 'none'; }
         };
         reader.readAsArrayBuffer(file);
     }
     
-    fileInput.addEventListener('change', function(e) { 
-        if (fileInput.files.length) handleFile(fileInput.files[0]); 
-    });
+    fileInput.addEventListener('change', (e) => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
     
     filterPanel.style.display = 'none';
     document.getElementById('tableContainer').style.display = 'none';
     document.getElementById('summaryArea').style.display = 'none';
-    document.getElementById('analyticsArea').style.display = 'none';
     document.getElementById('noDataMsg').style.display = 'block';
     insightFooter.style.display = 'none';
 </script>
