@@ -1,1213 +1,2384 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Driver Activity Dashboard - With Total Row</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Truck Movement Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
     <style>
         * {
             box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
-        }
-
-        body {
-            background: #eef2f5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-
-        .container {
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f4f7fc;
+            padding: 16px 24px;
+            color: #1e293b;
+        }
+        .app {
             max-width: 100%;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            overflow: hidden;
-            padding: 16px 20px 24px 20px;
         }
-
-        .header-row {
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px 20px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 16px;
+            border: 1px solid #e9edf4;
+        }
+        .header-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-        h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin: 0;
-            color: #1a2c3e;
-        }
-        .header-buttons {
-            display: flex;
             gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
+            margin-bottom: 4px;
         }
-        .compact-upload {
+        .header-wrapper h1 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+        }
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: #f1f5f9;
-            padding: 4px 12px;
-            border-radius: 30px;
+            gap: 10px;
         }
-        .compact-upload .file-label {
-            background: #1f6392;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 25px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .btn-export {
-            background: #2c7a4d;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 25px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
+        .btn {
             border: none;
-        }
-        .btn-image {
-            background: #9b59b6;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 25px;
-            font-size: 0.7rem;
             font-weight: 500;
+            padding: 6px 18px;
+            border-radius: 6px;
             cursor: pointer;
-            border: none;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        .btn-image:hover { background: #8e44ad; }
-        .btn-export:hover { background: #1f5f3a; }
-        #fileInfo {
-            font-size: 0.65rem;
-            color: #2c5a7a;
-            background: #e9f0f5;
-            padding: 4px 8px;
-            border-radius: 20px;
+        .btn-danger {
+            background: #dc2626;
+            color: white;
         }
-
-        .filter-bar {
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d1d9e6;
+            color: #1e293b;
+        }
+        .btn-outline:hover {
             background: #f1f5f9;
-            border-radius: 16px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
+        }
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #047857;
+        }
+        .↑ Upload-area {
             display: flex;
-            flex-wrap: wrap;
+            align-items: center;
             gap: 12px;
+            justify-content: flex-end;
+        }
+        .file-label {
+            background: #dc2626;
+            color: white;
+            padding: 6px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .file-label:hover {
+            background: #b91c1c;
+        }
+        #file-input {
+            display: none;
+        }
+        #file-name {
+            color: #475569;
+            font-size: 0.85rem;
+        }
+        .stats-badge {
+            background: #f1f5f9;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #334155;
+        }
+        .filter-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
             align-items: flex-end;
+            margin-top: 4px;
         }
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            min-width: 140px;
+            gap: 2px;
         }
         .filter-group label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #2c5a7a;
-        }
-        .filter-group input, .filter-group select {
-            padding: 6px 10px;
-            border-radius: 14px;
-            border: 1px solid #cbdbe0;
-            background: white;
-            font-size: 0.75rem;
-        }
-        .filter-group select[multiple] {
-            min-height: 65px;
-        }
-        .btn-reset {
-            background: #dadfe5;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 25px;
             font-size: 0.7rem;
-            cursor: pointer;
+            font-weight: 500;
+            color: #475569;
+            letter-spacing: 0.3px;
         }
-        .note-small {
-            font-size: 0.55rem;
-            color: #4a6a85;
+        .filter-group select,
+        .filter-group input {
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d9e6;
+            background: white;
+            font-size: 0.85rem;
+            min-width: 130px;
+            height: 30px;
+            transition: 0.15s;
         }
-
-        .summary-cards {
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: 2px solid #818cf8;
+            border-color: transparent;
+        }
+        .date-range-info {
+            font-size: 0.8rem;
+            color: #475569;
+            background: #f1f5f9;
+            padding: 2px 12px;
+            border-radius: 40px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+        }
+        .info-box {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 20px;
-            background: #f2f6f9;
-            border-radius: 16px;
-            padding: 10px 16px;
-        }
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 6px 14px;
-            text-align: center;
-            flex: 1 1 120px;
-        }
-        .card .num {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #1e4663;
-        }
-        .card div:last-child {
-            font-size: 0.65rem;
-            color: #4a627a;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: 12px;
-            border: 1px solid #e2edf2;
-            background: white;
-            margin-top: 10px;
-        }
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.7rem;
-            background: white;
-            min-width: 100%;
-        }
-        .data-table th {
-            background: #eef2f7;
-            color: #1a3a4e;
-            padding: 6px 4px;
-            text-align: center;
-            border: 1px solid #d4dee8;
-            font-weight: 600;
-            font-size: 0.65rem;
-            white-space: nowrap;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-        }
-        .data-table th:hover {
-            background: #e2eaf2;
-        }
-        .data-table th .sort-icon {
-            display: inline-block;
-            margin-left: 3px;
-            font-size: 0.55rem;
-        }
-        .data-table th .sort-icon.asc::after {
-            content: '▲';
-        }
-        .data-table th .sort-icon.desc::after {
-            content: '▼';
-        }
-        .data-table td {
-            border: 1px solid #e2e8f0;
-            padding: 5px 4px;
-            text-align: center;
-            background: white;
-            white-space: nowrap;
-            font-size: 0.65rem;
-        }
-        .data-table tr:hover td {
-            background-color: #fafbfe;
-        }
-        .driver-name {
-            font-weight: 600;
-            background-color: #fafbfc;
-            text-align: left !important;
-        }
-        .total-row {
-            background-color: #eef2f7 !important;
-            font-weight: 700;
-            border-top: 2px solid #1a3a4e;
-        }
-        .total-row td {
-            background-color: #eef2f7 !important;
-            font-weight: 700;
-        }
-        .trip-green { background-color: #90EE90 !important; color: #006400; font-weight: bold; }
-        .trip-orange { background-color: #FFB347 !important; color: #8B4000; font-weight: bold; }
-        .trip-yellow { background-color: #FFE44D !important; color: #886600; font-weight: bold; }
-        .trip-red { background-color: #FFAAAA !important; color: #8B0000; font-weight: bold; }
-        .qty-cell { background-color: #E8F0FE !important; }
-        .date-header {
-            background: #dce4ec !important;
-            font-weight: 700;
-        }
-        .sub-header {
-            background: #e8edf4 !important;
-            font-weight: 600;
-            font-size: 0.6rem;
-        }
-
-        .footer-note {
-            margin-top: 16px;
-            font-size: 0.7rem;
-            color: #2c5a7a;
-            border-top: 1px solid #e2edf2;
-            padding-top: 14px;
+            gap: 12px 24px;
+            margin: 6px 0 2px;
+            padding: 8px 14px;
             background: #f8fafc;
             border-radius: 8px;
-            padding: 16px 20px;
         }
-        .footer-note .insight-title {
-            font-weight: 700;
-            font-size: 0.75rem;
-            color: #1a2c3e;
-            margin-bottom: 8px;
-        }
-        .footer-note .insight-item {
-            padding: 3px 0;
+        .info-item {
             display: flex;
-            align-items: flex-start;
-            gap: 8px;
+            align-items: baseline;
+            gap: 4px;
+            font-size: 0.85rem;
         }
-        .footer-note .insight-item .bullet {
-            color: #1f6392;
-            font-weight: 700;
-            font-size: 0.8rem;
-            min-width: 14px;
-        }
-        .footer-note .insight-item .highlight {
+        .info-item strong {
             font-weight: 600;
-            color: #1e4663;
+            color: #0f172a;
         }
-        .footer-note .insight-item .badge {
-            display: inline-block;
-            background: #1f6392;
-            color: white;
-            padding: 0 6px;
-            border-radius: 10px;
-            font-size: 0.6rem;
-            font-weight: 700;
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #e9edf4;
+            padding-bottom: 2px;
+            overflow-x: auto;
         }
-        .footer-note .insight-item .driver-name-insight {
-            font-weight: 600;
-            color: #c0392b;
-            background: #fde8e8;
-            padding: 0 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-        }
-        .footer-note .insight-item .driver-name-insight-low {
-            font-weight: 600;
-            color: #e67e22;
-            background: #fef5e7;
-            padding: 0 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-        }
-        .legend-icon {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            margin-right: 3px;
-        }
-        .sortable-header {
+        .tab-btn {
+            padding: 8px 18px;
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #64748b;
             cursor: pointer;
+            border-radius: 30px 30px 0 0;
+            transition: 0.2s;
+            position: relative;
+            white-space: nowrap;
         }
-        .sortable-header:hover {
-            background: #dce4ec;
+        .tab-btn.active {
+            color: #1e293b;
+            background: #f8fafc;
         }
-        @media (max-width: 700px) {
-            .filter-group { min-width: 100%; }
-            .header-row { flex-direction: column; align-items: stretch; }
-            .header-buttons { justify-content: space-between; }
-            .data-table th, .data-table td {
-                font-size: 0.55rem;
-                padding: 3px 2px;
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: #4338ca;
+            border-radius: 10px;
+        }
+        .tab-content {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fade {
+            from {
+                opacity: 0.4;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+        .table-wrap {
+            overflow-x: auto;
+            margin: 8px 0 4px;
+            border-radius: 10px;
+            border: 1px solid #e9edf4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        th {
+            background: #f8fafc;
+            color: #1e293b;
+            font-weight: 600;
+            padding: 4px 4px;
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        td {
+            padding: 4px 4px;
+            text-align: center;
+            border-bottom: 1px solid #eef2f6;
+            vertical-align: middle;
+        }
+        tr:hover td {
+            background: #fafbff;
+        }
+        .date-header {
+            background: #e9edf4;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .date-header th {
+            background: #e2e8f0;
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.75rem;
+        }
+        .hour-header th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.65rem;
+        }
+        .highlight-cell {
+            background: #dbeafe;
+            font-weight: 600;
+        }
+        .chart-container {
+            height: 300px;
+            margin-top: 14px;
+            position: relative;
+        }
+        .insight-box {
+            margin-top: 10px;
+            padding: 8px 14px;
+            background: #f0fdf4;
+            border-radius: 10px;
+            border-left: 4px solid #059669;
+            overflow-x: auto;
+        }
+        .insight-box h4 {
+            color: #065f46;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+        }
+        .insight-box ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 20px;
+        }
+        .insight-box li {
+            font-size: 0.78rem;
+            color: #1e293b;
+            padding: 1px 0;
+            white-space: nowrap;
+        }
+        .insight-box li::before {
+            content: '▸ ';
+            color: #059669;
+            font-weight: 700;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #94a3b8;
+        }
+        .empty-state span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+        @media (max-width: 700px) {
+            .filter-grid {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group select,
+            .filter-group input {
+                width: 100%;
+                min-width: unset;
+            }
+            .↑ Upload-area {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .header-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-actions {
+                flex-wrap: wrap;
+            }
+            .insight-box ul {
+                flex-direction: column;
+                gap: 2px;
+            }
+            .insight-box li {
+                white-space: normal;
+            }
+            .tab-nav {
+                flex-wrap: nowrap;
+            }
+            .tab-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            body {
+                padding: 10px 12px;
+            }
+        }
+    
+/* ===== PROFESSIONAL OPERATIONS DASHBOARD ===== */
+:root{
+    --bg:#f3f6fa;
+    --surface:#ffffff;
+    --surface-2:#f8fafc;
+    --line:#e5eaf0;
+    --text:#0f172a;
+    --muted:#64748b;
+    --navy:#172033;
+    --blue:#2563eb;
+    --blue-soft:#eff6ff;
+    --green:#059669;
+    --green-soft:#ecfdf5;
+    --amber:#d97706;
+    --amber-soft:#fffbeb;
+    --shadow:0 8px 24px rgba(15,23,42,.055);
+    --shadow-hover:0 12px 30px rgba(15,23,42,.09);
+}
+
+body{
+    background:
+        radial-gradient(circle at 10% 0%, rgba(37,99,235,.035), transparent 28%),
+        linear-gradient(180deg,#f7f9fc 0%,var(--bg) 100%);
+    color:var(--text);
+    padding:20px 26px 28px;
+}
+
+.app{max-width:1600px;margin:0 auto}
+
+.header-wrapper{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:18px 22px;
+    margin-bottom:12px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+}
+.header-wrapper::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:4px;
+    background:linear-gradient(180deg,#2563eb,#059669);
+}
+.header-wrapper h1{
+    font-size:1.48rem;
+    font-weight:750;
+    letter-spacing:-.45px;
+    color:var(--navy);
+    margin-bottom:3px;
+}
+.header-wrapper h1::after{
+    content:"Fleet & Delivery Operations Dashboard";
+    display:block;
+    font-size:.72rem;
+    font-weight:500;
+    letter-spacing:.2px;
+    color:var(--muted);
+    margin-top:4px;
+}
+.header-actions{gap:8px}
+.↑ Upload-area{gap:8px}
+#file-name{
+    max-width:230px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.stats-badge{
+    background:#f1f5f9;
+    border:1px solid #e2e8f0;
+    font-weight:600;
+    padding:5px 11px;
+}
+.btn,.file-label{
+    height:36px;
+    border-radius:8px;
+    font-weight:650;
+    box-shadow:none;
+}
+.btn-danger,.file-label{
+    background:#172033;
+}
+.btn-danger:hover,.file-label:hover{background:#0f172a}
+.btn-success{background:#059669}
+.btn-success:hover{background:#047857}
+.btn-outline{
+    border-color:#d7dee8;
+    color:#334155;
+    background:#fff;
+}
+.btn-outline:hover{background:#f8fafc;border-color:#cbd5e1}
+
+/* Filter immediately below title */
+#filter-card{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:13px 18px 14px !important;
+    margin-bottom:12px;
+    box-shadow:var(--shadow);
+}
+#filter-card::before{
+    content:"FILTER & CONTROL";
+    display:block;
+    font-size:.68rem;
+    font-weight:800;
+    letter-spacing:.9px;
+    color:#475569;
+    margin-bottom:9px;
+}
+.filter-grid{
+    display:grid;
+    grid-template-columns:minmax(160px,1fr) minmax(160px,1fr) minmax(150px,180px) minmax(150px,180px) auto;
+    gap:10px;
+    align-items:end;
+    margin-top:0;
+}
+.filter-group{gap:4px}
+.filter-group label{
+    font-size:.67rem;
+    font-weight:750;
+    text-transform:uppercase;
+    letter-spacing:.55px;
+    color:#64748b;
+}
+.filter-group select,.filter-group input{
+    height:36px;
+    min-width:0;
+    padding:5px 10px;
+    border-radius:8px;
+    border:1px solid #d9e0e8;
+    background:#fff;
+    color:#1e293b;
+    font-size:.82rem;
+}
+.filter-group select:hover,.filter-group input:hover{border-color:#b8c4d2}
+.filter-group select:focus,.filter-group input:focus{
+    outline:3px solid rgba(37,99,235,.10);
+    border-color:#93b4f7;
+}
+.date-range-info{
+    height:36px;
+    padding:0 12px;
+    border-radius:8px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    color:#475569;
+    font-weight:600;
+    white-space:nowrap;
+}
+.info-box{
+    display:none;
+}
+
+/* KPI row */
+#filter-card .info-box{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+    margin:12px 0 0;
+    padding:0;
+    background:transparent;
+}
+#filter-card .info-item{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:4px;
+    min-height:78px;
+    padding:12px 15px 11px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:linear-gradient(145deg,#fff,#f9fbfd);
+    box-shadow:0 4px 12px rgba(15,23,42,.035);
+    overflow:hidden;
+}
+#filter-card .info-item::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:3px;
+    background:#2563eb;
+}
+#filter-card .info-item:nth-child(2)::before{background:#059669}
+#filter-card .info-item:nth-child(3)::before{background:#d97706}
+#filter-card .info-item:nth-child(4)::before{background:#7c3aed}
+#filter-card .info-item strong{
+    font-size:.65rem;
+    text-transform:uppercase;
+    letter-spacing:.65px;
+    color:#64748b;
+    font-weight:800;
+}
+#filter-card .info-item span:not(.date-range-info){
+    font-size:1.42rem;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:-.6px;
+    color:#0f172a;
+}
+
+/* Tabs / content */
+#tab-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:12px 18px 18px !important;
+    box-shadow:var(--shadow);
+}
+.tab-nav{
+    gap:4px;
+    margin-bottom:14px;
+    border-bottom:1px solid #e6ebf1;
+    padding-bottom:3px;
+}
+.tab-btn{
+    padding:9px 16px;
+    font-size:.78rem;
+    font-weight:750;
+    color:#64748b;
+    border-radius:8px 8px 0 0;
+}
+.tab-btn.active{
+    color:#1d4ed8;
+    background:#eff6ff;
+}
+.tab-btn.active::after{
+    left:15%;
+    right:15%;
+    height:2px;
+    background:#2563eb;
+}
+.table-wrap{
+    margin:6px 0 8px;
+    border:1px solid #e3e8ef;
+    border-radius:11px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+}
+table{font-size:.72rem}
+th{
+    background:#f8fafc;
+    color:#334155;
+    padding:6px 5px;
+    border-bottom:1px solid #dfe6ee;
+    font-weight:750;
+}
+.date-header th{
+    background:#eef3f8;
+    color:#1e293b;
+    font-size:.72rem;
+}
+.hour-header th{
+    background:#f8fafc;
+    color:#64748b;
+}
+td{
+    padding:5px 4px;
+    border-bottom:1px solid #edf1f5;
+}
+tr:hover td{background:#f8fbff}
+.highlight-cell{
+    background:#e8f1ff;
+    color:#1d4ed8;
+    font-weight:750;
+}
+.insight-box{
+    margin-top:11px;
+    padding:12px 15px;
+    background:linear-gradient(135deg,#f0fdf4,#f8fffb);
+    border:1px solid #d8f0e4;
+    border-left:4px solid #059669;
+    border-radius:11px;
+}
+.insight-box h4{
+    color:#065f46;
+    font-size:.78rem;
+    font-weight:800;
+    letter-spacing:.25px;
+    margin-bottom:6px;
+}
+.insight-box ul{gap:5px 24px}
+.insight-box li{font-size:.74rem;color:#334155}
+
+/* Chart controls */
+#tab3 > div:first-child{
+    padding:4px;
+    background:#f8fafc;
+    border:1px solid #e5eaf0;
+    border-radius:10px;
+}
+#tab3 > div:first-child .btn{
+    height:34px;
+}
+.chart-container{
+    height:330px;
+    margin-top:14px;
+    padding:5px 0;
+}
+#chart-legend{
+    padding:8px 11px;
+    background:#f8fafc;
+    border:1px solid #e5eaf0;
+    border-radius:8px;
+}
+
+/* Empty state */
+.empty-state{
+    padding:55px 16px;
+    color:#94a3b8;
+}
+.empty-state span{font-size:2.2rem}
+
+/* Responsive */
+@media (max-width:900px){
+    .filter-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .filter-grid .filter-group:last-child{
+        grid-column:1/-1;
+    }
+    #filter-card .info-box{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+@media (max-width:700px){
+    body{padding:10px 12px 18px}
+    .header-wrapper{padding:15px}
+    .header-actions{width:100%}
+    .↑ Upload-area{width:100%;flex-wrap:wrap}
+    .filter-grid{grid-template-columns:1fr}
+    .filter-grid .filter-group:last-child{grid-column:auto}
+    #filter-card .info-box{grid-template-columns:1fr 1fr}
+    #filter-card .info-item{min-height:70px}
+    #filter-card .info-item span:not(.date-range-info){font-size:1.2rem}
+    .tab-btn{padding:8px 11px;font-size:.72rem}
+}
+
+    
+/* ===== HOUR / JAM TYPOGRAPHY ===== */
+.hour-header th,
+th.hour,
+.hour-label,
+[class*="hour"]{
+    font-size: .82rem;
+}
+
+/* ===== THEME SELECTOR ===== */
+.theme-control{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-left:auto;
+}
+.theme-control label{
+    font-size:.66rem;
+    font-weight:800;
+    letter-spacing:.55px;
+    text-transform:uppercase;
+    color:#64748b;
+}
+#theme-select{
+    height:34px;
+    min-width:145px;
+    padding:5px 10px;
+    border:1px solid #d8e0e9;
+    border-radius:8px;
+    background:#fff;
+    color:#334155;
+    font-size:.76rem;
+    font-weight:700;
+}
+
+/* ===== THEME TOKENS ===== */
+body.theme-navy{
+    --bg:#eef2f7; --surface:#fff; --surface-2:#f7f9fc;
+    --line:#dce3ec; --text:#0f172a; --muted:#64748b;
+    --navy:#172033; --blue:#2563eb; --green:#059669;
+}
+body.theme-blue{
+    --bg:#eef5ff; --surface:#fff; --surface-2:#f4f8ff;
+    --line:#d8e5f5; --text:#12233d; --muted:#58708e;
+    --navy:#12345b; --blue:#1976d2; --green:#0f9d76;
+}
+body.theme-emerald{
+    --bg:#eef8f4; --surface:#fff; --surface-2:#f4fbf8;
+    --line:#d8e9e2; --text:#102a23; --muted:#5b756d;
+    --navy:#12352d; --blue:#087f6c; --green:#059669;
+}
+body.theme-slate{
+    --bg:#e9edf2; --surface:#f8fafc; --surface-2:#eef2f6;
+    --line:#d4dbe4; --text:#18212f; --muted:#657386;
+    --navy:#1e293b; --blue:#475569; --green:#0f766e;
+}
+body.theme-dark{
+    --bg:#0b1220; --surface:#111a2a; --surface-2:#162235;
+    --line:#27354a; --text:#e7edf7; --muted:#93a4bb;
+    --navy:#f1f5f9; --blue:#60a5fa; --green:#34d399;
+}
+body.theme-dark .header-wrapper,
+body.theme-dark #filter-card,
+body.theme-dark #tab-card,
+body.theme-dark #filter-card .info-item{
+    background:var(--surface);
+    border-color:var(--line);
+}
+body.theme-dark .filter-group select,
+body.theme-dark .filter-group input,
+body.theme-dark #theme-select,
+body.theme-dark .date-range-info{
+    background:#0f1929;
+    color:#e7edf7;
+    border-color:#314158;
+}
+body.theme-dark th,
+body.theme-dark .hour-header th{
+    background:#162235;
+    color:#cbd5e1;
+    border-color:#27354a;
+}
+body.theme-dark td{border-color:#243248}
+body.theme-dark tr:hover td{background:#18283d}
+body.theme-dark .tab-nav{border-color:#29374c}
+body.theme-dark .tab-btn{color:#93a4bb}
+body.theme-dark .tab-btn.active{
+    background:#172b46;
+    color:#93c5fd;
+}
+body.theme-dark .info-item strong{color:#93a4bb}
+body.theme-dark .info-item span{color:#f1f5f9}
+body.theme-dark .stats-badge,
+body.theme-dark #chart-legend{
+    background:#162235;
+    border-color:#2b3a50;
+    color:#cbd5e1;
+}
+body.theme-dark .insight-box{
+    background:#102a25;
+    border-color:#1f5146;
+}
+
+
+/* ===== ANALYSIS BY: TRIP / VOLUME ===== */
+.metric-filter-group{min-width:205px}
+.metric-toggle{
+    display:flex;
+    height:36px;
+    padding:3px;
+    gap:3px;
+    background:#f1f5f9;
+    border:1px solid #dbe3ec;
+    border-radius:9px;
+}
+.metric-btn{
+    border:0;
+    background:transparent;
+    color:#64748b;
+    border-radius:7px;
+    padding:0 13px;
+    min-width:88px;
+    font-size:.74rem;
+    font-weight:800;
+    cursor:pointer;
+    transition:.18s ease;
+}
+.metric-btn:hover{color:#1e293b;background:#e8eef5}
+.metric-btn.active{
+    background:#fff;
+    color:#1d4ed8;
+    box-shadow:0 2px 7px rgba(15,23,42,.08);
+}
+body.theme-dark .metric-toggle{
+    background:#0f1929;
+    border-color:#314158;
+}
+body.theme-dark .metric-btn{color:#93a4bb}
+body.theme-dark .metric-btn.active{
+    background:#1b2b41;
+    color:#93c5fd;
+}
+@media(max-width:900px){
+    .metric-filter-group{min-width:0}
+}
+
+
+@media(max-width:700px){
+    .metric-toggle{width:100%}
+    .metric-btn{flex:1}
+}
+
+
+/* ===== LARGER JAM / HOUR LABELS ===== */
+.hour-header th{
+    font-size: .92rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .15px;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+}
+
+
+/* =========================================================
+   ELEGANT / SMOOTH EXECUTIVE UI
+   ========================================================= */
+:root{
+    --bg:#f5f7fa;
+    --surface:#ffffff;
+    --surface-soft:#fafbfc;
+    --line:#e8edf2;
+    --line-strong:#dce3eb;
+    --text:#172033;
+    --muted:#718096;
+    --accent:#315f9f;
+    --accent-soft:#edf3fb;
+    --success:#2f8f72;
+    --success-soft:#edf8f4;
+    --radius-lg:18px;
+    --radius-md:12px;
+    --radius-sm:9px;
+    --shadow-soft:0 4px 18px rgba(20,35,55,.045);
+    --shadow-card:0 8px 28px rgba(20,35,55,.055);
+    --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+html{scroll-behavior:smooth}
+
+body{
+    background:
+      radial-gradient(circle at 8% 0%,rgba(49,95,159,.035),transparent 30%),
+      linear-gradient(180deg,#f9fafb 0%,#f3f6f9 100%);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+}
+
+.app{max-width:1640px}
+
+/* Header */
+.header-wrapper{
+    border:1px solid rgba(220,227,235,.92);
+    border-radius:var(--radius-lg);
+    padding:20px 24px;
+    margin-bottom:12px;
+    background:rgba(255,255,255,.96);
+    box-shadow:var(--shadow-card);
+    backdrop-filter:blur(12px);
+}
+.header-wrapper::before{
+    width:3px;
+    background:linear-gradient(180deg,#315f9f,#4c7dbd);
+}
+.header-wrapper h1{
+    font-size:1.5rem;
+    font-weight:760;
+    letter-spacing:-.55px;
+    color:#182337;
+}
+.header-wrapper h1::after{
+    color:#7b8798;
+    font-size:.71rem;
+    letter-spacing:.15px;
+}
+.header-actions{gap:10px}
+.stats-badge{
+    background:#f7f9fb;
+    border-color:#e6ebf0;
+    color:#64748b;
+}
+
+/* Buttons */
+.btn,.file-label{
+    border-radius:9px;
+    height:36px;
+    transition:transform .18s var(--ease),box-shadow .18s var(--ease),background .18s var(--ease);
+}
+.btn:hover,.file-label:hover{
+    transform:translateY(-1px);
+    box-shadow:0 5px 14px rgba(20,35,55,.08);
+}
+.btn:active,.file-label:active{transform:translateY(0)}
+.btn-danger,.file-label{background:#1f2b3d}
+.btn-danger:hover,.file-label:hover{background:#172235}
+.btn-success{background:#2f8f72}
+.btn-success:hover{background:#287b62}
+
+/* Filter */
+#filter-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    background:rgba(255,255,255,.98);
+    box-shadow:var(--shadow-soft);
+    padding:14px 18px 15px !important;
+}
+#filter-card::before{
+    color:#788597;
+    font-size:.64rem;
+    letter-spacing:1px;
+}
+.filter-grid{gap:9px}
+.filter-group label{
+    color:#7a8798;
+    font-size:.63rem;
+    letter-spacing:.65px;
+}
+.filter-group select,.filter-group input{
+    height:35px;
+    border:1px solid #e0e6ed;
+    border-radius:8px;
+    background:#fff;
+    color:#344054;
+    transition:border-color .18s var(--ease),box-shadow .18s var(--ease);
+}
+.filter-group select:focus,.filter-group input:focus{
+    border-color:#9db6d8;
+    box-shadow:0 0 0 3px rgba(49,95,159,.07);
+    outline:none;
+}
+.date-range-info{
+    height:35px;
+    border:1px solid #e5eaf0;
+    background:#f9fafb;
+    color:#68778a;
+}
+
+/* Metric toggle */
+.metric-toggle{
+    background:#f5f7f9;
+    border-color:#e7ebf0;
+}
+.metric-btn{
+    color:#788597;
+    transition:all .2s var(--ease);
+}
+.metric-btn:hover{background:#edf1f5;color:#475569}
+.metric-btn.active{
+    color:#315f9f;
+    box-shadow:0 2px 8px rgba(20,35,55,.07);
+}
+
+/* KPI cards */
+#filter-card .info-box{gap:9px;margin-top:11px}
+#filter-card .info-item{
+    min-height:74px;
+    padding:11px 15px;
+    border:1px solid #e8edf2;
+    border-radius:12px;
+    background:linear-gradient(145deg,#fff,#fbfcfd);
+    box-shadow:0 3px 13px rgba(20,35,55,.035);
+    transition:transform .2s var(--ease),box-shadow .2s var(--ease);
+}
+#filter-card .info-item:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(20,35,55,.07);
+}
+#filter-card .info-item::before{
+    width:2px;
+    background:#315f9f;
+    opacity:.9;
+}
+#filter-card .info-item:nth-child(2)::before{background:#2f8f72}
+#filter-card .info-item:nth-child(3)::before{background:#b78632}
+#filter-card .info-item:nth-child(4)::before{background:#7668a8}
+#filter-card .info-item strong{
+    color:#8792a1;
+    font-size:.62rem;
+    letter-spacing:.7px;
+}
+#filter-card .info-item span:not(.date-range-info){
+    color:#182337;
+    font-size:1.38rem;
+    font-weight:780;
+    letter-spacing:-.55px;
+}
+
+/* Main content */
+#tab-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    background:rgba(255,255,255,.98);
+    box-shadow:var(--shadow-card);
+    padding:13px 18px 19px !important;
+}
+.tab-nav{
+    margin-bottom:14px;
+    gap:2px;
+    border-bottom:1px solid #edf0f3;
+}
+.tab-btn{
+    padding:9px 16px;
+    color:#7a8798;
+    font-size:.76rem;
+    border-radius:8px 8px 0 0;
+    transition:background .18s var(--ease),color .18s var(--ease);
+}
+.tab-btn:hover{
+    color:#4b5b70;
+    background:#f7f9fb;
+}
+.tab-btn.active{
+    color:#315f9f;
+    background:#f3f7fc;
+}
+.tab-btn.active::after{
+    height:2px;
+    background:#315f9f;
+    border-radius:2px;
+}
+
+/* Tables */
+.table-wrap{
+    border:1px solid #e7ebf0;
+    border-radius:11px;
+    box-shadow:none;
+    overflow:auto;
+}
+table{
+    font-size:.73rem;
+    border-collapse:separate;
+    border-spacing:0;
+}
+th{
+    background:#fafbfc;
+    color:#526174;
+    border-bottom:1px solid #e5eaf0;
+    font-weight:750;
+}
+.date-header th{
+    background:#f3f6f9;
+    color:#3f4d60;
+}
+.hour-header th{
+    background:#fafbfc;
+    color:#657387;
+    font-size:.92rem !important;
+    font-weight:800 !important;
+}
+td{
+    border-bottom:1px solid #f0f2f5;
+    color:#445166;
+}
+tr:hover td{background:#fbfdff}
+.highlight-cell{
+    background:#f0f5fc;
+    color:#315f9f;
+    font-weight:760;
+}
+
+/* Insights */
+.insight-box{
+    margin-top:12px;
+    padding:12px 15px;
+    border:1px solid #e1eee9;
+    border-left:3px solid #2f8f72;
+    border-radius:11px;
+    background:linear-gradient(135deg,#f7fbf9,#fbfdfc);
+}
+.insight-box h4{
+    color:#286d58;
+    font-size:.76rem;
+}
+.insight-box li{
+    color:#526174;
+    font-size:.73rem;
+}
+
+/* Chart */
+.chart-container{
+    height:335px;
+    padding:4px 0;
+}
+#chart-legend{
+    border:1px solid #e7ebf0;
+    background:#fafbfc;
+    color:#657387;
+    border-radius:8px;
+}
+
+/* Scrollbar */
+*{
+    scrollbar-width:thin;
+    scrollbar-color:#cbd5df transparent;
+}
+*::-webkit-scrollbar{width:7px;height:7px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{
+    background:#cbd5df;
+    border-radius:20px;
+}
+*::-webkit-scrollbar-thumb:hover{background:#b4c0cd}
+
+/* Dark theme: softer, less contrast */
+body.theme-dark{
+    --bg:#0d1420;
+    --surface:#131c2a;
+    --surface-soft:#172232;
+    --line:#263447;
+    --line-strong:#324257;
+    --text:#e8edf5;
+    --muted:#91a0b5;
+}
+body.theme-dark .header-wrapper,
+body.theme-dark #filter-card,
+body.theme-dark #tab-card{
+    background:rgba(19,28,42,.97);
+    border-color:#263447;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+body.theme-dark .header-wrapper h1,
+body.theme-dark #filter-card .info-item span:not(.date-range-info){color:#edf2f7}
+body.theme-dark .filter-group select,
+body.theme-dark .filter-group input,
+body.theme-dark #theme-select,
+body.theme-dark .date-range-info{
+    background:#111b2a;
+    border-color:#2b3b50;
+    color:#d9e1eb;
+}
+body.theme-dark .metric-toggle{background:#111b2a;border-color:#2b3b50}
+body.theme-dark .metric-btn.active{background:#1b2a3e;color:#9fc2ed}
+body.theme-dark #filter-card .info-item{background:linear-gradient(145deg,#141f2f,#121b29);border-color:#27364a}
+body.theme-dark .tab-nav{border-color:#28364a}
+body.theme-dark .tab-btn:hover{background:#172437}
+body.theme-dark .tab-btn.active{background:#18283c;color:#9fc2ed}
+body.theme-dark th{background:#141f2e;color:#c4cfdd;border-color:#2a394d}
+body.theme-dark .date-header th{background:#192536;color:#d5dde7}
+body.theme-dark .hour-header th{background:#141f2e;color:#aebdce}
+body.theme-dark td{border-color:#233247;color:#b9c5d4}
+body.theme-dark tr:hover td{background:#172538}
+body.theme-dark .highlight-cell{background:#1b2d44;color:#a8c8ef}
+body.theme-dark .insight-box{background:#11251f;border-color:#245244}
+body.theme-dark #chart-legend{background:#141f2e;border-color:#2a394d;color:#b7c3d2}
+
+/* Responsive */
+@media(max-width:900px){
+    .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+    body{padding:10px 12px 18px}
+    .header-wrapper{padding:16px}
+    #tab-card{padding:11px 12px 16px !important}
+    .tab-btn{padding:8px 10px}
+    #filter-card .info-item span:not(.date-range-info){font-size:1.22rem}
+}
+
+
+/* ===== FILTER STATUS MOVED TO TAB BAR ===== */
+.tab-nav{
+    display:flex;
+    align-items:center;
+    width:100%;
+}
+.tab-range-info{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    padding-left:12px;
+}
+.tab-range-info .date-range-info{
+    height:32px;
+    display:flex;
+    align-items:center;
+    padding:0 11px;
+    border-radius:8px;
+    font-size:.69rem;
+    font-weight:650;
+    color:#68778a;
+    background:#f8fafc;
+    border:1px solid #e5eaf0;
+    white-space:nowrap;
+}
+@media(max-width:700px){
+    .tab-nav{
+        flex-wrap:wrap;
+        row-gap:7px;
+    }
+    .tab-range-info{
+        width:100%;
+        margin-left:0;
+        padding-left:0;
+        justify-content:flex-end;
+    }
+}
+
+
+/* FINAL TAB BAR: tabs LEFT, Range RIGHT after Chart */
+.tab-nav{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    width:100% !important;
+    gap:0 !important;
+}
+.tab-nav .tab-btn{flex:0 0 auto !important;}
+.tab-range-info{
+    margin-left:auto !important;
+    padding-left:14px !important;
+    display:flex !important;
+    align-items:center !important;
+    flex:0 0 auto !important;
+}
+.tab-range-info .date-range-info{
+    height:34px !important;
+    display:flex !important;
+    align-items:center !important;
+    padding:0 13px !important;
+    border-radius:9px !important;
+    background:#f8fafc !important;
+    border:1px solid #e1e7ee !important;
+    color:#315f9f !important;
+    font-size:.72rem !important;
+    font-weight:700 !important;
+    white-space:nowrap !important;
+    box-shadow:0 2px 8px rgba(20,35,55,.035);
+}
+@media(max-width:700px){
+    .tab-nav{flex-wrap:wrap !important;row-gap:7px;}
+    .tab-range-info{margin-left:auto !important;padding-left:8px !important;}
+}
+
+            /* Truck Type filter */
+            #truck-filter option { font-weight: 600; }
+
+
+/* ===== STRONG VISIBLE THEMES ===== */
+body.theme-navy{
+  background:linear-gradient(135deg,#f4f7fb,#e9eff6)!important;
+}
+body.theme-navy .header-wrapper,
+body.theme-navy #filter-card,
+body.theme-navy #tab-card{
+  background:#fff!important;border-color:#d8e3ee!important;
+}
+body.theme-navy .header-wrapper::before{background:linear-gradient(180deg,#244c7d,#4c7dbd)!important}
+body.theme-navy .tab-btn.active{background:#e8f0f9!important;color:#244c7d!important}
+body.theme-navy .tab-btn.active::after{background:#315f9f!important}
+body.theme-navy #filter-card .info-item{background:linear-gradient(145deg,#fff,#f2f7fc)!important}
+
+body.theme-blue{
+  background:linear-gradient(135deg,#edf6ff,#dcecff)!important;
+}
+body.theme-blue .header-wrapper{
+  background:linear-gradient(135deg,#fff,#edf7ff)!important;border-color:#c7dcf2!important;
+}
+body.theme-blue #filter-card,
+body.theme-blue #tab-card{background:#fff!important;border-color:#c7dcf2!important}
+body.theme-blue .header-wrapper::before{background:linear-gradient(180deg,#0969da,#45a3ff)!important}
+body.theme-blue .tab-btn.active{background:#e0efff!important;color:#1262b4!important}
+body.theme-blue .tab-btn.active::after{background:#1976d2!important}
+body.theme-blue #filter-card .info-item{background:linear-gradient(145deg,#fff,#eef7ff)!important;border-color:#d1e3f5!important}
+body.theme-blue #filter-card .info-item::before{background:#1976d2!important}
+
+body.theme-emerald{
+  background:linear-gradient(135deg,#edf9f5,#dff2eb)!important;
+}
+body.theme-emerald .header-wrapper{
+  background:linear-gradient(135deg,#fff,#eefaf6)!important;border-color:#c9e5da!important;
+}
+body.theme-emerald #filter-card,
+body.theme-emerald #tab-card{background:#fff!important;border-color:#c9e5da!important}
+body.theme-emerald .header-wrapper::before{background:linear-gradient(180deg,#087f6c,#3aae88)!important}
+body.theme-emerald .tab-btn.active{background:#e3f6ef!important;color:#087f6c!important}
+body.theme-emerald .tab-btn.active::after{background:#087f6c!important}
+body.theme-emerald #filter-card .info-item{background:linear-gradient(145deg,#fff,#effaf6)!important;border-color:#d0e8df!important}
+body.theme-emerald #filter-card .info-item::before{background:#087f6c!important}
+
+body.theme-slate{
+  background:linear-gradient(135deg,#eef1f5,#dce2e9)!important;
+}
+body.theme-slate .header-wrapper{
+  background:linear-gradient(135deg,#fff,#f0f3f6)!important;border-color:#c6d0dc!important;
+}
+body.theme-slate #filter-card,
+body.theme-slate #tab-card{background:#fcfdfe!important;border-color:#c8d2dd!important}
+body.theme-slate .header-wrapper::before{background:linear-gradient(180deg,#334155,#64748b)!important}
+body.theme-slate .tab-btn.active{background:#e5eaf0!important;color:#334155!important}
+body.theme-slate .tab-btn.active::after{background:#475569!important}
+body.theme-slate #filter-card .info-item{background:linear-gradient(145deg,#fff,#eef1f4)!important;border-color:#cfd7e0!important}
+body.theme-slate #filter-card .info-item::before{background:#475569!important}
+
+body.theme-dark{
+  background:radial-gradient(circle at 10% 0%,rgba(65,125,205,.13),transparent 32%),linear-gradient(135deg,#08111f,#0f1b2d)!important;
+}
+body.theme-dark .header-wrapper{
+  background:linear-gradient(135deg,#111d2e,#15243a)!important;border-color:#2a3c55!important;
+}
+body.theme-dark #filter-card,
+body.theme-dark #tab-card{background:#111d2e!important;border-color:#2a3c55!important}
+body.theme-dark .header-wrapper::before{background:linear-gradient(180deg,#60a5fa,#34d399)!important}
+body.theme-dark .tab-btn.active{background:#1b304a!important;color:#9bc5f5!important}
+body.theme-dark .tab-btn.active::after{background:#60a5fa!important}
+body.theme-dark #filter-card .info-item{background:linear-gradient(145deg,#142238,#101a2a)!important;border-color:#2b3e57!important}
+body.theme-dark .metric-btn.active{background:#1d3149!important;color:#9bc5f5!important}
+body.theme-dark .tab-range-info .date-range-info{background:#172941!important;border-color:#2c4260!important;color:#9bc5f5!important}
+
+body.theme-blue .tab-range-info .date-range-info{background:#edf6ff!important;border-color:#c7dcf2!important;color:#1262b4!important}
+body.theme-emerald .tab-range-info .date-range-info{background:#edf9f5!important;border-color:#c9e5da!important;color:#087f6c!important}
+body.theme-slate .tab-range-info .date-range-info{background:#eef1f5!important;border-color:#c6d0dc!important;color:#475569!important}
+
+body.theme-navy .metric-btn.active{background:#e8f0f9!important;color:#244c7d!important}
+body.theme-blue .metric-btn.active{background:#e0efff!important;color:#1262b4!important}
+body.theme-emerald .metric-btn.active{background:#e3f6ef!important;color:#087f6c!important}
+body.theme-slate .metric-btn.active{background:#e5eaf0!important;color:#334155!important}
+
+body,.header-wrapper,#filter-card,#tab-card,#filter-card .info-item,.tab-btn,.metric-btn,.tab-range-info .date-range-info{
+  transition:background .28s ease,border-color .28s ease,color .22s ease,box-shadow .28s ease;
+}
+
+
+/* ===== POLISHED ACTION LABELS ===== */
+.metric-btn{gap:0!important}
+.upload-arrow{
+    display:inline-block;
+    margin-right:5px;
+    font-size:1rem;
+    font-weight:900;
+    line-height:1;
+    transform:translateY(-1px);
+}
+
+</style>
 </head>
 <body>
-<div class="container">
-    <div class="header-row">
-        <h1>🚚 Driver Activity Dashboard</h1>
-        <div class="header-buttons">
-            <button class="btn-image" id="exportImageBtn">📸 Download Full Table Image</button>
-            <button class="btn-export" id="exportBtn">📎 Export Excel</button>
-            <div class="compact-upload">
-                <span class="file-label" onclick="document.getElementById('excelInput').click()">📂 Upload</span>
-                <input type="file" id="excelInput" accept=".xls, .xlsx, .csv" style="display: none;" />
-                <span id="fileInfo">No file</span>
+    <div class="app" id="app">
+        <div class="header-wrapper">
+            <h1>🚛 Truck Movement Analyzer</h1>
+            <div class="header-actions">
+        <div class="theme-control">
+            <label for="theme-select">Theme</label>
+            <select id="theme-select" title="Choose dashboard theme">
+                <option value="navy">Professional Navy</option>
+                <option value="blue">Corporate Blue</option>
+                <option value="emerald">Emerald Operations</option>
+                <option value="slate">Executive Slate</option>
+                <option value="dark">Dark Command</option>
+            </select>
+        </div>
+                <div class="↑ Upload-area">
+                    <span id="file-name" style="font-size:0.85rem; color:#475569;">No file</span>
+                    <span class="stats-badge" id="row-count">0 rows</span>
+                    <button class="btn btn-danger" id="download-excel" style="display:none;">⬇ Download</button>
+                    <label class="file-label" id="file-label">
+                        ↑ Upload
+                        <input type="file" id="file-input" accept=".xls,.xlsx" />
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="card" id="filter-card" style="display:none; padding:10px 20px 12px;">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label>Plant</label>
+                    <select id="plant-filter"><option value="all">All Plants</option></select>
+                </div>
+                <div class="filter-group">
+                    <label title="MPB = Truck Mini; selain MPB = Truck Big">Truck Type</label>
+                    <select id="truck-filter"><option value="all">All Truck Types</option><option value="mini">Truck Mini</option><option value="big">Truck Big</option></select>
+                </div>
+                <div class="filter-group">
+                    <label>Start Date</label>
+                    <input type="date" id="start-date" />
+                </div>
+                <div class="filter-group">
+                    <label>End Date</label>
+                    <input type="date" id="end-date" />
+                </div>
+                <div class="filter-group metric-filter-group">
+                    <label>Analysis By</label>
+                    <div class="metric-toggle" id="metric-toggle">
+                        <button type="button" class="metric-btn active" data-metric="trip">Trip</button>
+                        <button type="button" class="metric-btn" data-metric="volume">Volume</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    
+                </div>
+            </div>
+            <div class="info-box" id="info-box" aria-label="Key Performance Indicators">
+                <span class="info-item"><strong>Total Volume</strong> <span id="total-dp">0</span></span>
+                <span class="info-item"><strong>Total Trip</strong> <span id="total-trip">0</span></span>
+                <span class="info-item"><strong>Days</strong> <span id="day-count">0</span></span>
+                <span class="info-item"><strong>Hours</strong> <span id="hour-range">00:00 - 23:00</span></span>
+            </div>
+        </div>
+
+        <!-- Tab navigasi -->
+        <div class="card" id="tab-card" style="display:none; padding:12px 20px 16px;">
+            <div class="tab-nav" aria-label="Analysis views">
+                
+                <button class="tab-btn active" data-tab="tab1">🚛 Per Hour (Truck)</button>
+                <button class="tab-btn" data-tab="tab2">📍 Per Hour (Site)</button>
+                <button class="tab-btn" data-tab="tab3">📈 Chart</button>
+                <div class="tab-range-info"><span class="date-range-info" id="date-range-info">Range: -</span></div>
+            </div>
+
+            <!-- Tab 1: Truck -->
+            <div class="tab-content active" id="tab1">
+                <div id="truck-table-container">
+                    <div class="table-wrap" id="truck-table-wrap"></div>
+                </div>
+                <div class="insight-box" id="truck-insight">
+                    <h4>💡 Insight - Truck</h4>
+                    <ul id="truck-insight-list">
+                        <li>No data to analyze</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab 2: Site -->
+            <div class="tab-content" id="tab2">
+                <div id="site-table-container">
+                    <div class="table-wrap" id="site-table-wrap"></div>
+                </div>
+                <div class="insight-box" id="site-insight">
+                    <h4>💡 Insight - Site</h4>
+                    <ul id="site-insight-list">
+                        <li>No data to analyze</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab 3: Grafik -->
+            <div class="tab-content" id="tab3">
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                    <button class="btn btn-success" id="chart-truck-btn" style="flex:1; justify-content:center;">🚛 Truck</button>
+                    <button class="btn btn-outline" id="chart-site-btn" style="flex:1; justify-content:center;">📍 Site</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart-canvas"></canvas>
+                </div>
+                <div id="chart-legend" style="margin-top:6px; font-size:0.8rem; color:#475569;"></div>
             </div>
         </div>
     </div>
 
-    <div class="filter-bar" id="filterPanel" style="display: none;">
-        <div class="filter-group"><label>Start Date</label><input type="date" id="startDateFilter"></div>
-        <div class="filter-group"><label>End Date</label><input type="date" id="endDateFilter"></div>
-        <div class="filter-group"><label>Area (Province)</label><select id="areaFilter" multiple size="3"></select><div class="note-small">Ctrl+klik multi pilih</div></div>
-        <div class="filter-group"><label>Plant Name</label><select id="plantFilter" multiple size="3"></select><div class="note-small">Otomatis filter area</div></div>
-        <div class="filter-group"><label>Driver Type</label><select id="driverTypeFilter"><option value="all">All Drivers</option><option value="libero">Libero Only</option><option value="non-libero">Non-Libero</option></select></div>
-        <button class="btn-reset" id="resetFiltersBtn">Reset</button>
-    </div>
+    <script>
+        (function() {
+            'use strict';
 
-    <div id="summaryArea" class="summary-cards" style="display: none;"></div>
-    <div id="tableContainer" style="display: none;">
-        <div class="table-wrapper" id="tableWrapperForImage">
-            <table class="data-table" id="resultTable">
-                <thead id="tableHeader"></thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-    </div>
-    <div id="noDataMsg" style="text-align:center; padding: 30px; color: #6c86a3; display: block;">📂 Upload file Excel — data akan muncul otomatis</div>
-    <div class="footer-note" id="insightFooter" style="display: none;">
-        <div class="insight-title">📊 Key Performance Insights</div>
-        <div id="insightContent"></div>
-    </div>
-</div>
+            // ---------- state ----------
+            let workbookData = null;
+            let filteredData = [];
+            let allPlants = [];
+            let allTrucks = [];
+            let allSites = [];
 
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script>
-    let rawRecords = [];
-    let currentAggregated = null;
-    let currentSortColumn = 'Total Trip';
-    let currentSortDirection = 'desc';
-    let driverDataArray = [];
-    
-    const fileInput = document.getElementById('excelInput');
-    const fileInfoSpan = document.getElementById('fileInfo');
-    const filterPanel = document.getElementById('filterPanel');
-    const startDateInput = document.getElementById('startDateFilter');
-    const endDateInput = document.getElementById('endDateFilter');
-    const areaSelect = document.getElementById('areaFilter');
-    const plantSelect = document.getElementById('plantFilter');
-    const driverTypeSelect = document.getElementById('driverTypeFilter');
-    const resetBtn = document.getElementById('resetFiltersBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const exportImageBtn = document.getElementById('exportImageBtn');
-    const insightFooter = document.getElementById('insightFooter');
-    const insightContent = document.getElementById('insightContent');
-    
-    function formatNumber(num) {
-        if (num === undefined || num === null) return '0';
-        return num.toLocaleString('en-US');
-    }
-    
-    function getDistributionColor(tripValue, count, maxCount) {
-        if (maxCount === 0) return 'background-color: #ffffff;';
-        let intensity = Math.floor((count / maxCount) * 200);
-        if (tripValue <= 2) {
-            let r = 200 + (55 * intensity / 200);
-            let g = 200 - (150 * intensity / 200);
-            let b = 200 - (150 * intensity / 200);
-            return `background-color: rgb(${Math.min(255, r)}, ${Math.max(50, g)}, ${Math.max(50, b)}); color: ${intensity > 100 ? 'white' : '#8B0000'}; font-weight: bold;`;
-        } else {
-            let g = 200 + (55 * intensity / 200);
-            let r = 200 - (150 * intensity / 200);
-            let b = 200 - (150 * intensity / 200);
-            return `background-color: rgb(${Math.max(50, r)}, ${Math.min(255, g)}, ${Math.max(50, b)}); color: ${intensity > 100 ? 'white' : '#006400'}; font-weight: bold;`;
-        }
-    }
-    
-    function normalizeDateWithObj(dateValue) {
-        if (!dateValue && dateValue !== 0) return null;
-        let dateObj = null;
-        if (typeof dateValue === 'number') {
-            let d = new Date(Math.round((dateValue - 25569) * 86400 * 1000));
-            if (!isNaN(d.getTime())) dateObj = d;
-        } else {
-            let str = String(dateValue).trim();
-            let ymd = str.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-            if (ymd) dateObj = new Date(parseInt(ymd[1]), parseInt(ymd[2])-1, parseInt(ymd[3]));
-            else {
-                let dmy = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-                if (dmy) dateObj = new Date(parseInt(dmy[3]), parseInt(dmy[2])-1, parseInt(dmy[1]));
-                else {
-                    let ts = Date.parse(str);
-                    if (!isNaN(ts)) dateObj = new Date(ts);
+            // DOM refs
+            const fileInput = document.getElementById('file-input');
+            const fileName = document.getElementById('file-name');
+            const rowCount = document.getElementById('row-count');
+            const filterCard = document.getElementById('filter-card');
+            const tabCard = document.getElementById('tab-card');
+            const plantFilter = document.getElementById('plant-filter');
+            const truckFilter = document.getElementById('truck-filter');
+            const startDate = document.getElementById('start-date');
+            const endDate = document.getElementById('end-date');
+            const downloadBtn = document.getElementById('download-excel');
+            const dateRangeInfo = document.getElementById('date-range-info');
+            const metricToggle = document.getElementById('metric-toggle');
+
+            const totalDp = document.getElementById('total-dp');
+            const totalTrip = document.getElementById('total-trip');
+            const dayCount = document.getElementById('day-count');
+            const hourRange = document.getElementById('hour-range');
+
+            const truckTableWrap = document.getElementById('truck-table-wrap');
+            const siteTableWrap = document.getElementById('site-table-wrap');
+            const truckInsightList = document.getElementById('truck-insight-list');
+            const siteInsightList = document.getElementById('site-insight-list');
+
+            const chartCanvas = document.getElementById('chart-canvas');
+            let chartInstance = null;
+            let metricMode = 'trip'; // 'trip' = count rows, 'volume' = sum QTY
+
+            // ---------- helpers ----------
+            function parseExcel(data) {
+                const wb = XLSX.read(data, { type: 'array', cellDates: false });
+                const firstSheet = wb.Sheets[wb.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+                return json;
+            }
+
+            function normalizeDate(val) {
+                if (!val) return null;
+                if (typeof val === 'number') {
+                    const d = new Date((val - 25569) * 86400 * 1000);
+                    if (!isNaN(d)) return d;
+                }
+                if (typeof val === 'string') {
+                    const parts = val.split(/[-/]/);
+                    if (parts.length === 3) {
+                        const y = parseInt(parts[0], 10);
+                        const m = parseInt(parts[1], 10) - 1;
+                        const d = parseInt(parts[2], 10);
+                        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+                            return new Date(y, m, d);
+                        }
+                    }
+                    const d = new Date(val);
+                    if (!isNaN(d)) return d;
+                }
+                return null;
+            }
+
+            function formatDateKey(d) {
+                if (!d || isNaN(d)) return 'invalid';
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+
+            function formatDateDisplay(d) {
+                if (!d || isNaN(d)) return '-';
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${String(d.getDate()).padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+            }
+
+            function formatDateShort(d) {
+                if (!d || isNaN(d)) return '-';
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]}`;
+            }
+
+            function getHour(hourStr) {
+                if (!hourStr) return -1;
+                if (typeof hourStr === 'string') {
+                    const parts = hourStr.split(':');
+                    if (parts.length >= 2) {
+                        const h = parseInt(parts[0], 10);
+                        if (!isNaN(h)) return h;
+                    }
+                }
+                return -1;
+            }
+
+            function getDateRange(startDateObj, endDateObj) {
+                const dates = [];
+                if (!startDateObj || !endDateObj) return dates;
+                const cur = new Date(startDateObj);
+                const end = new Date(endDateObj);
+                while (cur <= end) {
+                    dates.push(new Date(cur));
+                    cur.setDate(cur.getDate() + 1);
+                }
+                return dates;
+            }
+
+            // ---------- proses data ----------
+            function processRawData(raw) {
+                const rows = [];
+                const plantSet = new Set();
+                const truckSet = new Set();
+                const siteSet = new Set();
+
+                for (const r of raw) {
+                    const dpNo = r['DP No'] || r['DPNo'] || '';
+                    const truckNo = r['Truck No'] || r['TruckNo'] || '';
+                    const dpDateRaw = r['DP Date'] || r['DPDate'] || '';
+                    const dpTime = r['DP Time'] || r['DPTime'] || '';
+                    const plantName = r['Plant Name'] || r['PlantName'] || '';
+                    const siteName = r['Site Name'] || r['SiteName'] || '';
+                    const qty = parseFloat(r['QTY'] || r['Qty'] || 0) || 0;
+
+                    const dpDate = normalizeDate(dpDateRaw);
+                    if (!dpDate) continue;
+
+                    const hour = getHour(dpTime);
+                    if (hour < 0 || hour > 23) continue;
+
+                    const dateKey = formatDateKey(dpDate);
+
+                    plantSet.add(plantName);
+                    truckSet.add(truckNo);
+                    siteSet.add(siteName);
+
+                    rows.push({
+                        dpNo: String(dpNo).trim(),
+                        truckNo: String(truckNo).trim(),
+                        dpDate,
+                        dateKey,
+                        hour,
+                        plantName: String(plantName).trim(),
+                        siteName: String(siteName).trim(),
+                        qty
+                    });
+                }
+
+                allPlants = Array.from(plantSet).filter(Boolean).sort();
+                allTrucks = Array.from(truckSet).filter(Boolean).sort();
+                allSites = Array.from(siteSet).filter(Boolean).sort();
+
+                return rows;
+            }
+
+            function getTruckType(truckNo) {
+                const value = String(truckNo || '').trim().toUpperCase();
+                return value.startsWith('MPB') ? 'mini' : 'big';
+            }
+
+            function filterData(rows, plant, truck, start, end) {
+                let filtered = rows;
+                if (plant && plant !== 'all') {
+                    filtered = filtered.filter(r => r.plantName === plant);
+                }
+                if (truck && truck !== 'all') {
+                    filtered = filtered.filter(r => getTruckType(r.truckNo) === truck);
+                }
+                if (start) {
+                    const s = new Date(start);
+                    s.setHours(0, 0, 0, 0);
+                    filtered = filtered.filter(r => r.dpDate >= s);
+                }
+                if (end) {
+                    const e = new Date(end);
+                    e.setHours(23, 59, 59, 999);
+                    filtered = filtered.filter(r => r.dpDate <= e);
+                }
+                return filtered;
+            }
+
+            function aggregateByHour(data, groupKey) {
+                const map = new Map();
+                for (const row of data) {
+                    const key = row[groupKey] || 'unknown';
+                    const dateKey = row.dateKey;
+                    const hour = row.hour;
+                    const composite = `${key}||${dateKey}||${hour}`;
+
+                    if (!map.has(composite)) {
+                        map.set(composite, {
+                            key,
+                            dateKey,
+                            hour,
+                            value: 0,
+                            count: 0,
+                            volume: 0,
+                            dpNos: new Set(),
+                            trips: []
+                        });
+                    }
+
+                    const entry = map.get(composite);
+                    entry.count += 1;
+                    entry.volume += Number(row.qty) || 0;
+                    entry.value += metricMode === 'volume' ? (Number(row.qty) || 0) : 1;
+                    entry.dpNos.add(row.dpNo);
+                    entry.trips.push(row.truckNo);
+                }
+
+                return Array.from(map.values()).map(val => ({
+                    key: val.key,
+                    dateKey: val.dateKey,
+                    hour: val.hour,
+                    value: val.value,
+                    count: val.count,
+                    volume: val.volume,
+                    dpNos: Array.from(val.dpNos),
+                    trips: val.trips
+                }));
+            }
+
+            function buildPivotTable(aggData, groupLabel, dateRange) {
+                if (!aggData.length || !dateRange.length) {
+                    return { html: `<div class="empty-state"><span>📭</span>No data for this filter</div>`, pivot: null,
+                        sortedKeys: [], hourLabels: [] };
+                }
+
+                const pivot = new Map();
+                const allKeys = new Set();
+
+                for (const item of aggData) {
+                    const pivotKey = `${item.key}||${item.dateKey}`;
+                    if (!pivot.has(pivotKey)) {
+                        pivot.set(pivotKey, { key: item.key, dateKey: item.dateKey, hours: {} });
+                    }
+                    const entry = pivot.get(pivotKey);
+                    entry.hours[item.hour] = (entry.hours[item.hour] || 0) + item.value;
+                    allKeys.add(item.key);
+                }
+
+                const sortedKeys = Array.from(allKeys).sort();
+                const dateKeys = dateRange.map(d => formatDateKey(d));
+                const dateDisplays = dateRange.map(d => formatDateShort(d));
+
+                let html = `<table><thead>`;
+
+                html += `<tr class="date-header"><th>${groupLabel}</th>`;
+                for (const d of dateDisplays) {
+                    html += `<th colspan="24" style="text-align:center; font-size:0.75rem;">${d}</th>`;
+                }
+                html += `<th style="min-width:45px;">Total</th></tr>`;
+
+                html += `<tr class="hour-header"><th style="font-size:0.6rem;">&nbsp;</th>`;
+                for (let i = 0; i < dateRange.length; i++) {
+                    for (let h = 0; h < 24; h++) {
+                        html += `<th style="font-size:0.5rem; padding:1px 2px; min-width:16px;">${String(h).padStart(2,'0')}</th>`;
+                    }
+                }
+                html += `<th>${metricLabel()}</th></tr>`;
+                html += `</thead><tbody>`;
+
+                let grandTotal = 0;
+                const rowTotals = {};
+                const colTotals = {};
+
+                for (const key of sortedKeys) {
+                    let rowTotal = 0;
+                    html += `<tr><td><strong>${key}</strong></td>`;
+                    for (const dk of dateKeys) {
+                        const pKey = `${key}||${dk}`;
+                        for (let h = 0; h < 24; h++) {
+                            let val = 0;
+                            if (pivot.has(pKey)) {
+                                val = pivot.get(pKey).hours[h] || 0;
+                            }
+                            rowTotal += val;
+                            const colKey = `${dk}_${h}`;
+                            colTotals[colKey] = (colTotals[colKey] || 0) + val;
+                            const cls = val > 0 ? 'highlight-cell' : '';
+                            html += `<td class="${cls}">${val > 0 ? val : '-'}</td>`;
+                        }
+                    }
+                    grandTotal += rowTotal;
+                    rowTotals[key] = rowTotal;
+                    html += `<td><strong>${rowTotal}</strong></td></tr>`;
+                }
+
+                html += `<tr style="background:#f1f5f9;font-weight:600;"><td>TOTAL</td>`;
+                for (const dk of dateKeys) {
+                    for (let h = 0; h < 24; h++) {
+                        const colKey = `${dk}_${h}`;
+                        const val = colTotals[colKey] || 0;
+                        html += `<td>${val > 0 ? val : '-'}</td>`;
+                    }
+                }
+                html += `<td><strong>${grandTotal}</strong></td></tr>`;
+                html += `</tbody></table>`;
+
+                return { html, pivot, sortedKeys, dateKeys, rowTotals, colTotals, grandTotal };
+            }
+
+            function metricLabel() {
+                return metricMode === 'volume' ? 'Volume' : 'Trip';
+            }
+
+            function formatMetric(value) {
+                const n = Number(value) || 0;
+                if (metricMode === 'volume') {
+                    return `${n.toLocaleString('en-US', { maximumFractionDigits: 2 })} m³`;
+                }
+                return `${n.toLocaleString('en-US')} trip`;
+            }
+
+            // ---------- generate insights ----------
+            function generateInsights(pivotResult, groupLabel) {
+                const insights = [];
+                if (!pivotResult || !pivotResult.sortedKeys || !pivotResult.sortedKeys.length) {
+                    return ['No data to analyze'];
+                }
+
+                const { sortedKeys, rowTotals, grandTotal, dateKeys, pivot } = pivotResult;
+
+                const sortedByTotal = sortedKeys.map(k => ({ key: k, total: rowTotals[k] || 0 }))
+                    .sort((a, b) => b.total - a.total);
+
+                const topItems = sortedByTotal.slice(0, Math.min(3, sortedByTotal.length));
+                insights.push(`🏆 Top ${groupLabel}: ${topItems.map((t, i) => `${i+1}. ${t.key} (${formatMetric(t.total)})`).join(' | ')}`);
+
+                const hourTotals = {};
+                for (const key of sortedKeys) {
+                    for (const dk of dateKeys) {
+                        const pKey = `${key}||${dk}`;
+                        if (pivot && pivot.has(pKey)) {
+                            const entry = pivot.get(pKey);
+                            for (let h = 0; h < 24; h++) {
+                                hourTotals[h] = (hourTotals[h] || 0) + (entry.hours[h] || 0);
+                            }
+                        }
+                    }
+                }
+                const sortedHours = Object.entries(hourTotals).sort((a, b) => b[1] - a[1]);
+                if (sortedHours.length > 0) {
+                    const topHours = sortedHours.slice(0, 3);
+                    insights.push(
+                        `⏰ Peak hours: ${topHours.map(([h, v]) => `${String(h).padStart(2,'0')}:00 (${formatMetric(v)})`).join(' | ')}`
+                        );
+                }
+
+                const sortedLow = Object.entries(hourTotals)
+                    .filter(([h, v]) => v > 0)
+                    .sort((a, b) => a[1] - b[1]);
+                if (sortedLow.length >= 3) {
+                    const lowHours = sortedLow.slice(0, 3);
+                    insights.push(
+                        `🌙 Low hours: ${lowHours.map(([h, v]) => `${String(h).padStart(2,'0')}:00 (${formatMetric(v)})`).join(' | ')}`
+                        );
+                } else if (sortedLow.length > 0) {
+                    const lowHours = sortedLow.slice(0, sortedLow.length);
+                    insights.push(
+                        `🌙 Low hours: ${lowHours.map(([h, v]) => `${String(h).padStart(2,'0')}:00 (${formatMetric(v)})`).join(' | ')}`
+                        );
+                }
+
+                insights.push(`📊 ${sortedKeys.length} ${groupLabel} | Total ${metricLabel()}: ${formatMetric(grandTotal)}`);
+
+                if (sortedByTotal.length > 0) {
+                    insights.push(`🚀 Highest: ${sortedByTotal[0].key} (${formatMetric(sortedByTotal[0].total)})`);
+                }
+
+                return insights;
+            }
+
+            // ---------- render ----------
+            function render(rows) {
+                filteredData = rows;
+
+                const dpSet = new Set();
+                let tripCount = 0;
+                let totalVolume = 0;
+                for (const r of rows) {
+                    dpSet.add(r.dpNo);
+                    tripCount += 1;
+                    totalVolume += Number(r.qty) || 0;
+                }
+                // The first KPI is now Total Volume and is sourced directly from Excel QTY.
+                totalDp.textContent = totalVolume.toLocaleString('en-US', { maximumFractionDigits: 2 });
+                totalTrip.textContent = tripCount.toLocaleString('en-US');
+
+                let dateRangeArr = [];
+                if (rows.length) {
+                    const dates = rows.map(r => r.dpDate.getTime());
+                    const minD = new Date(Math.min(...dates));
+                    const maxD = new Date(Math.max(...dates));
+                    dateRangeArr = getDateRange(minD, maxD);
+                    dateRangeInfo.textContent = `${formatDateDisplay(minD)} - ${formatDateDisplay(maxD)} (${dateRangeArr.length} days)`;
+                    dayCount.textContent = dateRangeArr.length;
+                    hourRange.textContent = `00:00 - 23:00 (${dateRangeArr.length * 24} hours)`;
+                } else {
+                    dateRangeInfo.textContent = 'Range: -';
+                    dayCount.textContent = '0';
+                    hourRange.textContent = '00:00 - 23:00';
+                }
+
+                const truckAgg = aggregateByHour(rows, 'truckNo');
+                const truckPivot = buildPivotTable(truckAgg, 'Truck', dateRangeArr);
+                truckTableWrap.innerHTML = truckPivot.html;
+                const truckInsights = generateInsights(truckPivot, 'Truck');
+                truckInsightList.innerHTML = truckInsights.map(i => `<li>${i}</li>`).join('');
+
+                const siteAgg = aggregateByHour(rows, 'siteName');
+                const sitePivot = buildPivotTable(siteAgg, 'Site', dateRangeArr);
+                siteTableWrap.innerHTML = sitePivot.html;
+                const siteInsights = generateInsights(sitePivot, 'Site');
+                siteInsightList.innerHTML = siteInsights.map(i => `<li>${i}</li>`).join('');
+
+                updateChart(truckAgg, 'Truck');
+
+                downloadBtn.style.display = 'inline-flex';
+            }
+
+            // ---------- chart ----------
+            let chartMode = 'truck';
+
+            function updateChart(aggData, labelKey) {
+                if (!aggData || !aggData.length) {
+                    if (chartInstance) { chartInstance.destroy();
+                        chartInstance = null; }
+                    const ctx = chartCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+                    document.getElementById('chart-legend').textContent = 'No data for chart';
+                    return;
+                }
+
+                const keyMap = new Map();
+                for (const item of aggData) {
+                    if (!keyMap.has(item.key)) {
+                        keyMap.set(item.key, { key: item.key, hours: new Array(24).fill(0) });
+                    }
+                    const entry = keyMap.get(item.key);
+                    entry.hours[item.hour] += item.value;
+                }
+
+                const sortedKeys = Array.from(keyMap.keys()).sort();
+                const colors = ['#4361ee', '#ef476f', '#ffb347', '#2d6a4f', '#7b2cbf', '#f4a261', '#3a86ff', '#d62828', '#06d6a0',
+                    '#ff006e', '#8338ec', '#fb5607'
+                ];
+
+                const datasets = sortedKeys.map((key, idx) => ({
+                    label: key,
+                    data: keyMap.get(key).hours,
+                    backgroundColor: colors[idx % colors.length] + '66',
+                    borderColor: colors[idx % colors.length],
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.2,
+                    pointRadius: 3,
+                }));
+
+                const labels = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+
+                if (chartInstance) chartInstance.destroy();
+
+                const ctx = chartCanvas.getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: { font: { size: 10 }, boxWidth: 12, padding: 8 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        return ctx.dataset.label + ': ' + (metricMode === 'volume' ? ctx.parsed.y.toLocaleString('en-US', {maximumFractionDigits:2}) + ' m³' : ctx.parsed.y.toLocaleString('en-US') + ' trip');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 9 }, maxRotation: 45 }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1, font: { size: 9 } }
+                            }
+                        }
+                    }
+                });
+
+                const totalTrips = aggData.reduce((a, b) => a + b.value, 0);
+                document.getElementById('chart-legend').textContent =
+                    `📊 Showing ${sortedKeys.length} ${labelKey} | Total ${metricLabel()}: ${formatMetric(totalTrips)} | (Aggregated per hour all dates)`;
+            }
+
+            function refreshChart() {
+                const agg = chartMode === 'truck' ?
+                    aggregateByHour(filteredData, 'truckNo') :
+                    aggregateByHour(filteredData, 'siteName');
+                updateChart(agg, chartMode === 'truck' ? 'Truck' : 'Site');
+            }
+
+            // ---------- auto filter ----------
+            function autoFilter() {
+                if (!workbookData) return;
+                const plant = plantFilter.value;
+                const truck = truckFilter.value;
+                const start = startDate.value ? new Date(startDate.value) : null;
+                const end = endDate.value ? new Date(endDate.value) : null;
+
+                const filtered = filterData(workbookData, plant, truck, start, end);
+                render(filtered);
+
+                updateTruckFilter(plant);
+            }
+
+            function updateTruckFilter(selectedPlant) {
+                const currentVal = truckFilter.value;
+                let sourceRows = workbookData;
+
+                if (selectedPlant && selectedPlant !== 'all') {
+                    sourceRows = workbookData.filter(r => r.plantName === selectedPlant);
+                }
+
+                // Business rule:
+                // MPB*  = Truck Mini
+                // Other = Truck Big
+                const typeSet = new Set();
+                for (const r of sourceRows) {
+                    if (r.truckNo) typeSet.add(getTruckType(r.truckNo));
+                }
+
+                truckFilter.innerHTML = '<option value="all">All Truck Types</option>';
+
+                if (typeSet.has('mini')) {
+                    const opt = document.createElement('option');
+                    opt.value = 'mini';
+                    opt.textContent = 'Truck Mini';
+                    truckFilter.appendChild(opt);
+                }
+
+                if (typeSet.has('big')) {
+                    const opt = document.createElement('option');
+                    opt.value = 'big';
+                    opt.textContent = 'Truck Big';
+                    truckFilter.appendChild(opt);
+                }
+
+                if (currentVal === 'mini' && typeSet.has('mini')) {
+                    truckFilter.value = 'mini';
+                } else if (currentVal === 'big' && typeSet.has('big')) {
+                    truckFilter.value = 'big';
+                } else {
+                    truckFilter.value = 'all';
                 }
             }
-        }
-        if (dateObj && !isNaN(dateObj.getTime())) {
-            let day = dateObj.getDate();
-            let month = dateObj.getMonth() + 1;
-            let year = dateObj.getFullYear();
-            let dateStr = `${day.toString().padStart(2,'0')}/${month.toString().padStart(2,'0')}/${year}`;
-            return { dateStr, dateObj };
-        }
-        return null;
-    }
-    
-    function getDriverType(driverName) {
-        if (!driverName) return 'non-libero';
-        return driverName.toLowerCase().includes('libero') ? 'libero' : 'non-libero';
-    }
-    
-    function buildRecordsFromRows(rows) {
-        if (!rows || rows.length < 2) return [];
-        let headers = rows[0];
-        let colIdx = { driverName: -1, plantName: -1, dpDate: -1, qty: -1, province: -1, distance: -1 };
-        for (let i=0; i<headers.length; i++) {
-            let h = String(headers[i] || '').trim().toLowerCase();
-            if (h.includes('driver name')) colIdx.driverName = i;
-            if (h.includes('plant name')) colIdx.plantName = i;
-            if (h === 'dp date' || h.includes('dp date')) colIdx.dpDate = i;
-            if (h === 'qty' || h === 'quantity') colIdx.qty = i;
-            if (h === 'province' || h.includes('province')) colIdx.province = i;
-            if (h === 'distance' || h.includes('distance')) colIdx.distance = i;
-        }
-        if (colIdx.driverName === -1 || colIdx.dpDate === -1 || colIdx.qty === -1) return [];
-        let records = [];
-        for (let i=1; i<rows.length; i++) {
-            let row = rows[i];
-            if (!row) continue;
-            let driver = row[colIdx.driverName] ? String(row[colIdx.driverName]).trim() : '';
-            if (driver === '' || driver === '-') continue;
-            let plant = (colIdx.plantName !== -1 && row[colIdx.plantName]) ? String(row[colIdx.plantName]).trim() : 'N/A';
-            let qtyRaw = row[colIdx.qty];
-            let qty = 0;
-            if (qtyRaw !== undefined && qtyRaw !== null && qtyRaw !== '') {
-                if (typeof qtyRaw === 'number') qty = qtyRaw;
-                else qty = parseFloat(String(qtyRaw).replace(/,/g, '')) || 0;
+
+            // ---------- download Excel ----------
+            function downloadExcel() {
+                if (!filteredData || !filteredData.length) {
+                    alert('No data to download');
+                    return;
+                }
+
+                const wb = XLSX.utils.book_new();
+
+                const dateRangeArr = getDateRange(
+                    filteredData.length ? new Date(Math.min(...filteredData.map(r => r.dpDate.getTime()))) : null,
+                    filteredData.length ? new Date(Math.max(...filteredData.map(r => r.dpDate.getTime()))) : null
+                );
+                const truckAgg = aggregateByHour(filteredData, 'truckNo');
+                const truckPivot = buildPivotTable(truckAgg, 'Truck', dateRangeArr);
+
+                const truckData = pivotToArray(truckPivot, 'Truck', dateRangeArr);
+                const ws1 = XLSX.utils.aoa_to_sheet(truckData);
+                XLSX.utils.book_append_sheet(wb, ws1, 'Truck per Hour');
+
+                const siteAgg = aggregateByHour(filteredData, 'siteName');
+                const sitePivot = buildPivotTable(siteAgg, 'Site', dateRangeArr);
+                const siteData = pivotToArray(sitePivot, 'Site', dateRangeArr);
+                const ws2 = XLSX.utils.aoa_to_sheet(siteData);
+                XLSX.utils.book_append_sheet(wb, ws2, 'Site per Hour');
+
+                const summaryData = [
+                    ['Summary Report'],
+                    ['Total Volume', filteredData.length ? new Set(filteredData.map(r => r.dpNo)).size : 0],
+                    ['Total Trip', filteredData.length],
+                    ['Days', dateRangeArr.length],
+                    ['Date Range', dateRangeArr.length ? `${formatDateDisplay(dateRangeArr[0])} - ${formatDateDisplay(dateRangeArr[dateRangeArr.length-1])}` : '-'],
+                    [''],
+                    ['Top Truck', truckPivot.sortedKeys && truckPivot.sortedKeys.length ? truckPivot.sortedKeys
+                        .map(k => ({ key: k, total: truckPivot.rowTotals ? truckPivot.rowTotals[k] || 0 : 0 }))
+                        .sort((a, b) => b.total - a.total)[0]?.key || '-' : '-'
+                    ],
+                    ['Top Site', sitePivot.sortedKeys && sitePivot.sortedKeys.length ? sitePivot.sortedKeys
+                        .map(k => ({ key: k, total: sitePivot.rowTotals ? sitePivot.rowTotals[k] || 0 : 0 }))
+                        .sort((a, b) => b.total - a.total)[0]?.key || '-' : '-'
+                    ],
+                ];
+                const ws3 = XLSX.utils.aoa_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, ws3, 'Summary');
+
+                XLSX.writeFile(wb, `Truck_Movement_${formatDateKey(new Date())}.xlsx`);
             }
-            let distance = 0;
-            if (colIdx.distance !== -1 && row[colIdx.distance] !== undefined && row[colIdx.distance] !== '') {
-                let distRaw = row[colIdx.distance];
-                if (typeof distRaw === 'number') distance = distRaw;
-                else distance = parseFloat(String(distRaw).replace(/,/g, '')) || 0;
+
+            function pivotToArray(pivotResult, groupLabel, dateRange) {
+                const data = [];
+                if (!pivotResult || !pivotResult.sortedKeys || !pivotResult.sortedKeys.length) {
+                    return [
+                        [groupLabel, 'No data']
+                    ];
+                }
+
+                const { sortedKeys, rowTotals, grandTotal, dateKeys } = pivotResult;
+                const dateDisplays = dateRange.map(d => formatDateShort(d));
+
+                const headerRow = [groupLabel];
+                for (const d of dateDisplays) {
+                    headerRow.push(d);
+                }
+                headerRow.push(metricLabel());
+                data.push(headerRow);
+
+                const hourRow = ['Hour'];
+                for (let i = 0; i < dateRange.length; i++) {
+                    for (let h = 0; h < 24; h++) {
+                        hourRow.push(String(h).padStart(2, '0'));
+                    }
+                }
+                hourRow.push(metricLabel());
+                data.push(hourRow);
+
+                for (const key of sortedKeys) {
+                    const row = [key];
+                    let rowTotal = 0;
+                    for (const dk of dateKeys) {
+                        const pKey = `${key}||${dk}`;
+                        for (let h = 0; h < 24; h++) {
+                            let val = 0;
+                            if (pivotResult.pivot && pivotResult.pivot.has(pKey)) {
+                                val = pivotResult.pivot.get(pKey).hours[h] || 0;
+                            }
+                            row.push(val);
+                            rowTotal += val;
+                        }
+                    }
+                    row.push(rowTotal);
+                    data.push(row);
+                }
+
+                const totalRow = ['TOTAL'];
+                for (const dk of dateKeys) {
+                    for (let h = 0; h < 24; h++) {
+                        const colKey = `${dk}_${h}`;
+                        const val = (pivotResult.colTotals && pivotResult.colTotals[colKey]) || 0;
+                        totalRow.push(val);
+                    }
+                }
+                totalRow.push(grandTotal || 0);
+                data.push(totalRow);
+
+                return data;
             }
-            let dateParsed = normalizeDateWithObj(row[colIdx.dpDate]);
-            if (!dateParsed) continue;
-            let province = (colIdx.province !== -1 && row[colIdx.province]) ? String(row[colIdx.province]).trim() : 'Unknown';
-            let driverType = getDriverType(driver);
-            records.push({ driver, plant, qty, distance, dateStr: dateParsed.dateStr, dateObj: dateParsed.dateObj, province, driverType });
-        }
-        return records;
-    }
-    
-    function getDateRange(records) {
-        if (records.length === 0) return { minDate: null, maxDate: null };
-        let dates = records.map(r => r.dateObj.getTime());
-        return { minDate: new Date(Math.min(...dates)), maxDate: new Date(Math.max(...dates)) };
-    }
-    
-    function setDateFilterRange(records) {
-        if (records.length === 0) return;
-        let { minDate, maxDate } = getDateRange(records);
-        if (minDate && maxDate) {
-            startDateInput.value = minDate.toISOString().split('T')[0];
-            endDateInput.value = maxDate.toISOString().split('T')[0];
-        }
-    }
-    
-    function applyFilters(records, startDateStr, endDateStr, selectedAreas, selectedPlants, driverTypeVal) {
-        let filtered = [...records];
-        if (startDateStr) {
-            let start = new Date(startDateStr); start.setHours(0,0,0,0);
-            filtered = filtered.filter(r => r.dateObj >= start);
-        }
-        if (endDateStr) {
-            let end = new Date(endDateStr); end.setHours(23,59,59,999);
-            filtered = filtered.filter(r => r.dateObj <= end);
-        }
-        if (selectedAreas && selectedAreas.length > 0) filtered = filtered.filter(r => selectedAreas.includes(r.province));
-        if (selectedPlants && selectedPlants.length > 0) filtered = filtered.filter(r => selectedPlants.includes(r.plant));
-        if (driverTypeVal === 'libero') filtered = filtered.filter(r => r.driverType === 'libero');
-        else if (driverTypeVal === 'non-libero') filtered = filtered.filter(r => r.driverType === 'non-libero');
-        return filtered;
-    }
-    
-    function aggregateDrivers(records) {
-        if (records.length === 0) return { driversMap: new Map(), allDates: [], totalDrivers:0, totalTrips:0, totalQty:0 };
-        let dateSetGlobal = new Set();
-        records.forEach(r => dateSetGlobal.add(r.dateStr));
-        let allDates = Array.from(dateSetGlobal);
-        allDates.sort((a,b) => {
-            let [da,ma,ya] = a.split('/');
-            let [db,mb,yb] = b.split('/');
-            return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
-        });
-        let driversMap = new Map();
-        records.forEach(rec => {
-            const key = rec.driver;
-            if (!driversMap.has(key)) {
-                driversMap.set(key, {
-                    driver: rec.driver,
-                    plant: rec.plant,
-                    province: rec.province,
-                    totalTrips: 0,
-                    totalQty: 0,
-                    totalDistance: 0,
-                    distanceCount: 0,
-                    uniqueDatesSet: new Set(),
-                    dailyMap: new Map(),
-                    tripDistribution: new Map()
+
+            // ---------- UI handlers ----------
+            function loadFile(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const raw = parseExcel(e.target.result);
+                        rowCount.textContent = raw.length + ' rows';
+                        fileName.textContent = file.name;
+
+                        workbookData = processRawData(raw);
+
+                        plantFilter.innerHTML = '<option value="all">All Plants</option>';
+                        for (const p of allPlants) {
+                            const opt = document.createElement('option');
+                            opt.value = p;
+                            opt.textContent = p;
+                            plantFilter.appendChild(opt);
+                        }
+
+                        truckFilter.innerHTML = '<option value="all">All Trucks</option>';
+                        for (const t of allTrucks) {
+                            const opt = document.createElement('option');
+                            opt.value = t;
+                            opt.textContent = t;
+                            truckFilter.appendChild(opt);
+                        }
+
+                        if (workbookData.length) {
+                            const dates = workbookData.map(r => r.dpDate.getTime());
+                            const minD = new Date(Math.min(...dates));
+                            const maxD = new Date(Math.max(...dates));
+                            startDate.value = formatDateKey(minD);
+                            endDate.value = formatDateKey(maxD);
+                        }
+
+                        filterCard.style.display = 'block';
+                        tabCard.style.display = 'block';
+
+                        autoFilter();
+
+                    } catch (err) {
+                        alert('Failed to read file: ' + err.message);
+                        console.error(err);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            function resetAll() {
+                workbookData = null;
+                filteredData = [];
+                fileName.textContent = 'No file';
+                rowCount.textContent = '0 rows';
+                filterCard.style.display = 'none';
+                tabCard.style.display = 'none';
+                plantFilter.innerHTML = '<option value="all">All Plants</option>';
+                truckFilter.innerHTML = '<option value="all">All Trucks</option>';
+                startDate.value = '';
+                endDate.value = '';
+                totalDp.textContent = '0';
+                totalTrip.textContent = '0';
+                dayCount.textContent = '0';
+                hourRange.textContent = '00:00 - 23:00';
+                dateRangeInfo.textContent = 'Range: -';
+                truckTableWrap.innerHTML = '<div class="empty-state"><span>📂</span>↑ Upload file to start analysis</div>';
+                siteTableWrap.innerHTML = '<div class="empty-state"><span>📂</span>↑ Upload file to start analysis</div>';
+                truckInsightList.innerHTML = '<li>No data to analyze</li>';
+                siteInsightList.innerHTML = '<li>No data to analyze</li>';
+                downloadBtn.style.display = 'none';
+                if (chartInstance) { chartInstance.destroy();
+                    chartInstance = null; }
+                document.getElementById('chart-legend').textContent = '';
+                fileInput.value = '';
+            }
+
+            // ---------- event binding ----------
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    loadFile(this.files[0]);
+                }
+            });
+
+            plantFilter.addEventListener('change', autoFilter);
+            truckFilter.addEventListener('change', autoFilter);
+            startDate.addEventListener('change', autoFilter);
+            endDate.addEventListener('change', autoFilter);
+
+
+            if (metricToggle) {
+                metricToggle.querySelectorAll('.metric-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        metricToggle.querySelectorAll('.metric-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        metricMode = this.dataset.metric;
+                        autoFilter();
+                    });
                 });
             }
-            let dData = driversMap.get(key);
-            dData.totalTrips += 1;
-            dData.totalQty += rec.qty;
-            if (rec.distance > 0) { dData.totalDistance += rec.distance; dData.distanceCount += 1; }
-            dData.uniqueDatesSet.add(rec.dateStr);
-            if (!dData.dailyMap.has(rec.dateStr)) dData.dailyMap.set(rec.dateStr, { trips: 0, qty: 0 });
-            let dayInfo = dData.dailyMap.get(rec.dateStr);
-            dayInfo.trips += 1;
-            dayInfo.qty += rec.qty;
-        });
-        
-        for (let [_, val] of driversMap.entries()) {
-            let distMap = new Map();
-            for (let dt of allDates) {
-                let daily = val.dailyMap.get(dt);
-                let tripVal = daily ? daily.trips : 0;
-                distMap.set(tripVal, (distMap.get(tripVal) || 0) + 1);
-            }
-            val.tripDistribution = distMap;
-            val.dayWork = val.uniqueDatesSet.size;
-            val.avgTripPerDay = (val.dayWork > 0) ? (val.totalTrips / val.dayWork) : 0;
-            val.avgTripPerDay = Math.round(val.avgTripPerDay * 100) / 100;
-            val.avgDistance = (val.distanceCount > 0) ? (val.totalDistance / val.distanceCount) : 0;
-            val.avgDistance = Math.round(val.avgDistance * 10) / 10;
-        }
-        
-        let maxTrip = 0;
-        for (let [_, val] of driversMap.entries()) {
-            let maxDist = Math.max(...Array.from(val.tripDistribution.keys()));
-            if (maxDist > maxTrip) maxTrip = maxDist;
-        }
-        
-        let totalTrips = Array.from(driversMap.values()).reduce((s,d)=> s+d.totalTrips,0);
-        let totalQty = Array.from(driversMap.values()).reduce((s,d)=> s+d.totalQty,0);
-        return { driversMap, allDates, totalDrivers: driversMap.size, totalTrips, totalQty, maxTripValue: maxTrip };
-    }
-    
-    function getTripClass(tripValue) {
-        if (tripValue >= 4) return 'trip-green';
-        if (tripValue === 3) return 'trip-orange';
-        if (tripValue === 2) return 'trip-yellow';
-        return 'trip-red';
-    }
-    
-    function sortDriverData(dataArray, column, direction) {
-        return dataArray.sort((a, b) => {
-            let valA, valB;
-            
-            switch(column) {
-                case 'No':
-                    valA = a.no;
-                    valB = b.no;
-                    break;
-                case 'Driver Name':
-                    valA = a.driverName.toLowerCase();
-                    valB = b.driverName.toLowerCase();
-                    break;
-                case 'Plant Name':
-                    valA = a.plant.toLowerCase();
-                    valB = b.plant.toLowerCase();
-                    break;
-                case 'Avg Dist (km)':
-                    valA = a.avgDistance;
-                    valB = b.avgDistance;
-                    break;
-                case 'Total Trip':
-                    valA = a.totalTrips;
-                    valB = b.totalTrips;
-                    break;
-                case 'Day Work':
-                    valA = a.dayWork;
-                    valB = b.dayWork;
-                    break;
-                case 'Avg Trip/Day':
-                    valA = a.avgTripPerDay;
-                    valB = b.avgTripPerDay;
-                    break;
-                case 'Total Qty':
-                    valA = a.totalQty;
-                    valB = b.totalQty;
-                    break;
-                default:
-                    // Untuk kolom tanggal dan distribusi
-                    if (column.includes('/')) {
-                        // Kolom tanggal - Qty atau Trip
-                        if (column.includes('Qty')) {
-                            valA = a.dailyQty[column] || 0;
-                            valB = b.dailyQty[column] || 0;
-                        } else if (column.includes('Trip')) {
-                            valA = a.dailyTrip[column] || 0;
-                            valB = b.dailyTrip[column] || 0;
-                        }
-                    } else if (column.includes('Trip') && !column.includes('Total') && !column.includes('Avg')) {
-                        // Kolom distribusi (0Trip, 1Trip, dst)
-                        let tripVal = parseInt(column);
-                        valA = a.tripDistribution[tripVal] || 0;
-                        valB = b.tripDistribution[tripVal] || 0;
+
+            downloadBtn.addEventListener('click', downloadExcel);
+
+            // tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(this.dataset.tab).classList.add('active');
+
+                    if (this.dataset.tab === 'tab3') {
+                        refreshChart();
                     }
-                    break;
-            }
-            
-            if (typeof valA === 'string') {
-                return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-            }
-            return direction === 'asc' ? valA - valB : valB - valA;
-        });
-    }
-    
-    function generateInsights(aggregated) {
-        const { driversMap, allDates, totalDrivers, totalTrips, totalQty, maxTripValue } = aggregated;
-        if (driversMap.size === 0) return [];
-        
-        let insights = [];
-        let totalDriversCount = driversMap.size;
-        let totalDays = allDates.length;
-        let totalTripsAll = totalTrips;
-        let totalQtyAll = totalQty;
-        
-        // Calculate averages
-        let avgTripPerDriver = totalTripsAll / totalDriversCount;
-        let avgQtyPerTrip = totalQtyAll / totalTripsAll;
-        let avgTripPerDay = totalTripsAll / (totalDays * totalDriversCount);
-        let avgQtyPerDay = totalQtyAll / (totalDays * totalDriversCount);
-        
-        // Find top driver
-        let topDriver = null;
-        let maxTrips = 0;
-        let topDriverName = '';
-        for (let [name, data] of driversMap.entries()) {
-            if (data.totalTrips > maxTrips) {
-                maxTrips = data.totalTrips;
-                topDriverName = name;
-                topDriver = data;
-            }
-        }
-        
-        // Find drivers with zero trips and low activity
-        let zeroTripDrivers = [];
-        let lowPerformerDrivers = [];
-        let highPerformerCount = 0;
-        for (let [name, data] of driversMap.entries()) {
-            if (data.totalTrips === 0) {
-                zeroTripDrivers.push(name);
-            } else if (data.totalTrips < 5 && data.totalTrips > 0) {
-                lowPerformerDrivers.push(name);
-            }
-            if (data.totalTrips >= 15) {
-                highPerformerCount++;
-            }
-        }
-        
-        // Libero vs Non-Libero analysis
-        let liberoCount = 0;
-        let liberoTrips = 0;
-        let nonLiberoCount = 0;
-        let nonLiberoTrips = 0;
-        for (let [name, data] of driversMap.entries()) {
-            if (getDriverType(name) === 'libero') {
-                liberoCount++;
-                liberoTrips += data.totalTrips;
-            } else {
-                nonLiberoCount++;
-                nonLiberoTrips += data.totalTrips;
-            }
-        }
-        
-        // Build insights
-        insights.push(`📌 Total <span class="highlight">${totalDriversCount}</span> driver aktif dalam <span class="highlight">${totalDays}</span> hari dengan total <span class="highlight">${formatNumber(totalTripsAll)}</span> trip dan volume <span class="highlight">${formatNumber(Math.round(totalQtyAll * 10)/10)} m³</span>`);
-        
-        insights.push(`📌 Rata-rata trip per driver: <span class="highlight">${avgTripPerDriver.toFixed(1)}</span> trip | Rata-rata trip per hari: <span class="highlight">${avgTripPerDay.toFixed(2)}</span> trip | Rata-rata volume per trip: <span class="highlight">${avgQtyPerTrip.toFixed(1)} m³</span>`);
-        
-        if (topDriver) {
-            insights.push(`🏆 Driver terbaik: <span class="highlight">${topDriverName}</span> dengan <span class="highlight">${topDriver.totalTrips}</span> trip (${topDriver.avgTripPerDay.toFixed(2)} trip/hari) dan volume <span class="highlight">${formatNumber(Math.round(topDriver.totalQty * 10)/10)} m³</span>`);
-        }
-        
-        // Insight untuk driver tanpa aktivitas
-        if (zeroTripDrivers.length > 0) {
-            let driverNames = zeroTripDrivers.map(name => `<span class="driver-name-insight">${escapeHtml(name)}</span>`).join(', ');
-            insights.push(`⚠️ <span class="highlight">${zeroTripDrivers.length}</span> driver tanpa aktivitas: ${driverNames} - perlu evaluasi dan penjadwalan ulang`);
-        }
-        
-        // Insight untuk driver dengan aktivitas rendah
-        if (lowPerformerDrivers.length > 0) {
-            let driverNames = lowPerformerDrivers.map(name => `<span class="driver-name-insight-low">${escapeHtml(name)}</span>`).join(', ');
-            insights.push(`⚠️ <span class="highlight">${lowPerformerDrivers.length}</span> driver dengan aktivitas rendah (&lt;5 trip): ${driverNames} - perlu perhatian dan motivasi`);
-        }
-        
-        // Insight untuk driver performa tinggi (tanpa nama)
-        if (highPerformerCount > 0) {
-            insights.push(`⭐ <span class="highlight">${highPerformerCount}</span> driver dengan performa tinggi (≥15 trip) - berikan apresiasi dan pertahankan motivasi`);
-        }
-        
-        // Libero vs Non-Libero comparison
-        if (liberoCount > 0 && nonLiberoCount > 0) {
-            let liberoAvg = (liberoCount > 0) ? (liberoTrips / liberoCount) : 0;
-            let nonLiberoAvg = (nonLiberoCount > 0) ? (nonLiberoTrips / nonLiberoCount) : 0;
-            let diff = ((liberoAvg - nonLiberoAvg) / nonLiberoAvg * 100).toFixed(1);
-            let comparison = diff > 0 ? `${diff}% lebih produktif` : `${Math.abs(diff)}% kurang produktif`;
-            insights.push(`📊 Perbandingan: ${liberoCount} Libero driver avg ${liberoAvg.toFixed(1)} trip vs ${nonLiberoCount} Non-Libero avg ${nonLiberoAvg.toFixed(1)} trip (Libero ${comparison})`);
-        }
-        
-        return insights;
-    }
-    
-    function renderFilteredResult(aggregated) {
-        currentAggregated = aggregated;
-        const { driversMap, allDates, totalDrivers, totalTrips, totalQty, maxTripValue } = aggregated;
-        if (driversMap.size === 0) {
-            document.getElementById('tableContainer').style.display = 'none';
-            document.getElementById('summaryArea').style.display = 'none';
-            document.getElementById('noDataMsg').style.display = 'block';
-            document.getElementById('noDataMsg').innerHTML = '⚠️ Tidak ada data sesuai filter';
-            insightFooter.style.display = 'none';
-            return;
-        }
-        
-        let distMaxCounts = {};
-        for (let i = 0; i <= maxTripValue; i++) {
-            let maxCount = 0;
-            for (let [_, data] of driversMap.entries()) {
-                let cnt = data.tripDistribution.get(i) || 0;
-                if (cnt > maxCount) maxCount = cnt;
-            }
-            distMaxCounts[i] = maxCount;
-        }
-        
-        // Prepare data for sorting
-        driverDataArray = [];
-        let idx = 1;
-        let totalAllTrips = 0;
-        let totalAllQty = 0;
-        let totalAllDistance = 0;
-        let totalDistanceCount = 0;
-        let totalAllDayWork = 0;
-        
-        // First pass: calculate totals
-        for (let [driverName, data] of driversMap.entries()) {
-            totalAllTrips += data.totalTrips;
-            totalAllQty += data.totalQty;
-            totalAllDistance += data.totalDistance;
-            totalDistanceCount += data.distanceCount;
-            totalAllDayWork += data.dayWork;
-        }
-        
-        // Second pass: build data array
-        for (let [driverName, data] of driversMap.entries()) {
-            let dailyQty = {};
-            let dailyTrip = {};
-            for (let dt of allDates) {
-                let daily = data.dailyMap.get(dt);
-                dailyQty[dt] = daily ? (Math.round(daily.qty * 10)/10) : 0;
-                dailyTrip[dt] = daily ? daily.trips : 0;
-            }
-            
-            let tripDist = {};
-            for (let i = 0; i <= maxTripValue; i++) {
-                tripDist[i] = data.tripDistribution.get(i) || 0;
-            }
-            
-            driverDataArray.push({
-                no: idx++,
-                driverName: driverName,
-                plant: data.plant,
-                avgDistance: data.avgDistance,
-                totalTrips: data.totalTrips,
-                dayWork: data.dayWork,
-                avgTripPerDay: data.avgTripPerDay,
-                totalQty: Math.round(data.totalQty * 10)/10,
-                dailyQty: dailyQty,
-                dailyTrip: dailyTrip,
-                tripDistribution: tripDist,
-                rawData: data
+                });
             });
-        }
-        
-        // Apply sorting
-        sortDriverData(driverDataArray, currentSortColumn, currentSortDirection);
-        
-        // Build table
-        let distHeaders = [];
-        for (let i = 0; i <= maxTripValue; i++) distHeaders.push(`${i}Trip`);
-        
-        let leftCols = ['No', 'Driver Name', 'Plant Name', 'Avg Dist (km)', 'Total Trip', 'Day Work', 'Avg Trip/Day', 'Total Qty'];
-        let rightCols = [...distHeaders];
-        let dateCols = [...allDates];
-        
-        // Build header with sort icons - FIXED STRUCTURE
-        let headerTop = `<tr>`;
-        // Left columns (single row headers)
-        for (let col of leftCols) {
-            let sortIcon = '';
-            if (col === currentSortColumn) {
-                sortIcon = `<span class="sort-icon ${currentSortDirection}"></span>`;
-            }
-            headerTop += `<th rowspan="2" class="sortable-header" onclick="sortTable('${col}')">${col} ${sortIcon}</th>`;
-        }
-        // Date columns (with colspan=2 for sub-headers)
-        for (let dt of dateCols) {
-            let sortIcon = '';
-            if (dt === currentSortColumn) {
-                sortIcon = `<span class="sort-icon ${currentSortDirection}"></span>`;
-            }
-            headerTop += `<th colspan="2" class="sortable-header date-header" onclick="sortTable('${dt}')">${dt} ${sortIcon}</th>`;
-        }
-        // Right columns (distribution)
-        for (let col of rightCols) {
-            let sortIcon = '';
-            if (col === currentSortColumn) {
-                sortIcon = `<span class="sort-icon ${currentSortDirection}"></span>`;
-            }
-            headerTop += `<th rowspan="2" class="sortable-header" onclick="sortTable('${col}')">${col} ${sortIcon}</th>`;
-        }
-        headerTop += `</tr>`;
-        
-        // Bottom header row (sub-headers for dates)
-        let headerBottom = `<tr>`;
-        for (let dt of dateCols) {
-            let sortIconQty = '';
-            let sortIconTrip = '';
-            let colQty = dt + ' - Qty';
-            let colTrip = dt + ' - Trip';
-            if (colQty === currentSortColumn) {
-                sortIconQty = `<span class="sort-icon ${currentSortDirection}"></span>`;
-            }
-            if (colTrip === currentSortColumn) {
-                sortIconTrip = `<span class="sort-icon ${currentSortDirection}"></span>`;
-            }
-            headerBottom += `<th class="sortable-header sub-header" onclick="sortTable('${colQty}')">Qty ${sortIconQty}</th>`;
-            headerBottom += `<th class="sortable-header sub-header" onclick="sortTable('${colTrip}')">Trip ${sortIconTrip}</th>`;
-        }
-        headerBottom += `</tr>`;
-        
-        document.getElementById('tableHeader').innerHTML = headerTop + headerBottom;
-        
-        // Build body
-        let tbodyHtml = '';
-        let totalQtyPerDate = new Array(dateCols.length).fill(0);
-        let totalTripPerDate = new Array(dateCols.length).fill(0);
-        let totalDistPerTrip = new Array(maxTripValue + 1).fill(0);
-        
-        for (let driver of driverDataArray) {
-            let row = `<tr>
-                <td>${driver.no}</td>
-                <td class="driver-name">${escapeHtml(driver.driverName)}</td>
-                <td>${escapeHtml(driver.plant)}</td>
-                <td>${formatNumber(driver.avgDistance)}</td>
-                <td><strong>${formatNumber(driver.totalTrips)}</strong></td>
-                <td>${driver.dayWork}</td>
-                <td><strong>${driver.avgTripPerDay}</strong></td>
-                <td><strong>${formatNumber(driver.totalQty)}</strong></td>`;
-            
-            for (let i = 0; i < dateCols.length; i++) {
-                let dt = dateCols[i];
-                let qtyVal = driver.dailyQty[dt] || 0;
-                let tripVal = driver.dailyTrip[dt] || 0;
-                let tripClass = getTripClass(tripVal);
-                row += `<td class="qty-cell">${formatNumber(qtyVal)}</td><td class="${tripClass}">${formatNumber(tripVal)}</td>`;
-                totalQtyPerDate[i] += qtyVal;
-                totalTripPerDate[i] += tripVal;
-            }
-            
-            for (let i = 0; i <= maxTripValue; i++) {
-                let count = driver.tripDistribution[i] || 0;
-                let maxCount = distMaxCounts[i];
-                let style = getDistributionColor(i, count, maxCount);
-                row += `<td style="${style}">${count}</td>`;
-                totalDistPerTrip[i] += count;
-            }
-            row += `</tr>`;
-            tbodyHtml += row;
-        }
-        
-        // Baris TOTAL
-        let totalRow = `<tr class="total-row"><td colspan="1" style="text-align:center; font-weight:bold;">TOTAL</td>`;
-        totalRow += `<td style="text-align:center; font-weight:bold;">${driversMap.size} Drivers</td>`;
-        totalRow += `<td style="text-align:center; font-weight:bold;"></td>`;
-        let avgDistAll = totalDistanceCount > 0 ? (totalAllDistance / totalDistanceCount) : 0;
-        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(avgDistAll * 10)/10)}</td>`;
-        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(totalAllTrips)}</td>`;
-        let avgDayWork = totalAllDayWork / driversMap.size;
-        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(avgDayWork * 10)/10)}</td>`;
-        let avgTripPerDayAll = totalAllTrips > 0 ? (totalAllTrips / totalAllDayWork) : 0;
-        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(avgTripPerDayAll * 100)/100)}</td>`;
-        totalRow += `<td style="text-align:center; font-weight:bold;">${formatNumber(Math.round(totalAllQty * 10)/10)}</td>`;
-        
-        for (let i = 0; i < dateCols.length; i++) {
-            totalRow += `<td class="qty-cell" style="font-weight:bold;">${formatNumber(Math.round(totalQtyPerDate[i] * 10)/10)}</td>`;
-            totalRow += `<td style="font-weight:bold; background-color:#eef2f7;">${formatNumber(totalTripPerDate[i])}</td>`;
-        }
-        
-        for (let i = 0; i <= maxTripValue; i++) {
-            totalRow += `<td style="font-weight:bold; background-color:#eef2f7;">${formatNumber(totalDistPerTrip[i])}</td>`;
-        }
-        totalRow += `</tr>`;
-        tbodyHtml += totalRow;
-        
-        document.getElementById('tableBody').innerHTML = tbodyHtml;
-        document.getElementById('tableContainer').style.display = 'block';
-        
-        let summaryHtml = `
-            <div class="card"><div class="num">${totalDrivers}</div><div>Active Drivers</div></div>
-            <div class="card"><div class="num">${formatNumber(totalTrips)}</div><div>Total Trips</div></div>
-            <div class="card"><div class="num">${formatNumber(Math.round(totalQty * 10)/10)}</div><div>Concrete (m³)</div></div>
-            <div class="card"><div class="num">${allDates.length}</div><div>Days in range</div></div>
-            <div class="card"><div class="num">${maxTripValue}</div><div>Max Trip/Day</div></div>
-        `;
-        document.getElementById('summaryArea').innerHTML = summaryHtml;
-        document.getElementById('summaryArea').style.display = 'flex';
-        document.getElementById('noDataMsg').style.display = 'none';
-        
-        // Generate and display insights
-        const insights = generateInsights(aggregated);
-        if (insights.length > 0) {
-            let insightHtml = '';
-            insights.forEach((text, index) => {
-                insightHtml += `<div class="insight-item"><span class="bullet">${index + 1}.</span><span>${text}</span></div>`;
+
+            // chart mode buttons
+            document.getElementById('chart-truck-btn').addEventListener('click', function() {
+                chartMode = 'truck';
+                this.classList.add('btn-success');
+                this.classList.remove('btn-outline');
+                document.getElementById('chart-site-btn').classList.add('btn-outline');
+                document.getElementById('chart-site-btn').classList.remove('btn-success');
+                refreshChart();
             });
-            insightContent.innerHTML = insightHtml;
-            insightFooter.style.display = 'block';
-        } else {
-            insightFooter.style.display = 'none';
-        }
-    }
-    
-    function sortTable(column) {
-        if (currentSortColumn === column) {
-            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            currentSortColumn = column;
-            currentSortDirection = 'desc'; // Default descending (terbesar ke terkecil)
-        }
-        // Re-render with new sort
-        if (currentAggregated) {
-            renderFilteredResult(currentAggregated);
-        }
-    }
-    
-    function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => (m==='&'?'&amp;':m==='<'?'&lt;':'&gt;')); }
-    
-    function updatePlantOptionsBySelectedAreas() {
-        if (!rawRecords.length) return;
-        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
-        let plantsSet = new Set();
-        if (selectedAreas.length === 0) rawRecords.forEach(rec => plantsSet.add(rec.plant));
-        else rawRecords.forEach(rec => { if (selectedAreas.includes(rec.province)) plantsSet.add(rec.plant); });
-        let plantOptions = Array.from(plantsSet).sort();
-        let previouslySelected = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
-        plantSelect.innerHTML = '';
-        plantOptions.forEach(p => { let opt = document.createElement('option'); opt.value = p; opt.textContent = p; if (previouslySelected.includes(p)) opt.selected = true; plantSelect.appendChild(opt); });
-    }
-    
-    function refreshDashboard() {
-        if (!rawRecords.length) { document.getElementById('tableContainer').style.display = 'none'; document.getElementById('summaryArea').style.display = 'none'; document.getElementById('noDataMsg').style.display = 'block'; insightFooter.style.display = 'none'; return; }
-        let startDate = startDateInput.value, endDate = endDateInput.value;
-        let selectedAreas = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
-        let selectedPlants = Array.from(plantSelect.selectedOptions).map(opt => opt.value);
-        let driverTypeVal = driverTypeSelect.value;
-        let filtered = applyFilters(rawRecords, startDate, endDate, selectedAreas, selectedPlants, driverTypeVal);
-        let aggregated = aggregateDrivers(filtered);
-        renderFilteredResult(aggregated);
-        updateAreaDropdown();
-        updatePlantOptionsBySelectedAreas();
-    }
-    
-    function updateAreaDropdown() {
-        if (!rawRecords.length) return;
-        let areas = new Set();
-        rawRecords.forEach(r => areas.add(r.province));
-        let areaList = Array.from(areas).sort();
-        let previouslySelected = Array.from(areaSelect.selectedOptions).map(opt => opt.value);
-        areaSelect.innerHTML = '';
-        areaList.forEach(a => { let opt = document.createElement('option'); opt.value = a; opt.textContent = a; if (previouslySelected.includes(a)) opt.selected = true; areaSelect.appendChild(opt); });
-        updatePlantOptionsBySelectedAreas();
-    }
-    
-    function resetFilters() {
-        if (rawRecords.length) { let { minDate, maxDate } = getDateRange(rawRecords); if (minDate && maxDate) { startDateInput.value = minDate.toISOString().split('T')[0]; endDateInput.value = maxDate.toISOString().split('T')[0]; } }
-        else { startDateInput.value = ''; endDateInput.value = ''; }
-        for (let opt of areaSelect.options) opt.selected = false;
-        for (let opt of plantSelect.options) opt.selected = false;
-        driverTypeSelect.value = 'all';
-        currentSortColumn = 'Total Trip';
-        currentSortDirection = 'desc';
-        refreshDashboard();
-    }
-    
-    function exportToExcel() {
-        if (!currentAggregated || !currentAggregated.driversMap || currentAggregated.driversMap.size === 0) { alert("Tidak ada data untuk diexport."); return; }
-        const { driversMap, allDates, maxTripValue } = currentAggregated;
-        let sortedEntries = Array.from(driversMap.entries()).sort((a,b) => b[1].avgTripPerDay - a[1].avgTripPerDay);
-        let exportData = [];
-        let headerRow = ['No', 'Driver Name', 'Plant Name', 'Avg Distance (km)', 'Total Trip', 'Day Work', 'Avg/Trip/Day', 'Total Qty (m³)'];
-        for (let dt of allDates) headerRow.push(`${dt} - Qty`, `${dt} - Trip`);
-        for (let i = 0; i <= maxTripValue; i++) headerRow.push(`${i}Trip`);
-        exportData.push(headerRow);
-        
-        let idx = 1;
-        let totalQtyPerDate = new Array(allDates.length).fill(0);
-        let totalTripPerDate = new Array(allDates.length).fill(0);
-        let totalDistPerTrip = new Array(maxTripValue + 1).fill(0);
-        let totalAllTrips = 0;
-        let totalAllQty = 0;
-        let totalAllDistance = 0;
-        let totalDistanceCount = 0;
-        let totalAllDayWork = 0;
-        
-        for (let [driverName, data] of sortedEntries) {
-            let row = [idx++, driverName, data.plant, data.avgDistance, data.totalTrips, data.dayWork, data.avgTripPerDay, Math.round(data.totalQty * 10)/10];
-            totalAllTrips += data.totalTrips;
-            totalAllQty += data.totalQty;
-            totalAllDistance += data.totalDistance;
-            totalDistanceCount += data.distanceCount;
-            totalAllDayWork += data.dayWork;
-            for (let i = 0; i < allDates.length; i++) {
-                let dt = allDates[i];
-                let daily = data.dailyMap.get(dt);
-                let qtyVal = daily ? (Math.round(daily.qty * 10)/10) : 0;
-                let tripVal = daily ? daily.trips : 0;
-                row.push(qtyVal, tripVal);
-                totalQtyPerDate[i] += qtyVal;
-                totalTripPerDate[i] += tripVal;
-            }
-            for (let i = 0; i <= maxTripValue; i++) {
-                let cnt = data.tripDistribution.get(i) || 0;
-                row.push(cnt);
-                totalDistPerTrip[i] += cnt;
-            }
-            exportData.push(row);
-        }
-        
-        // Baris TOTAL
-        let totalRow = ['TOTAL', `${driversMap.size} Drivers`, '', ''];
-        let avgDistAll = totalDistanceCount > 0 ? (totalAllDistance / totalDistanceCount) : 0;
-        totalRow.push(Math.round(avgDistAll * 10)/10);
-        totalRow.push(totalAllTrips);
-        let avgDayWork = totalAllDayWork / driversMap.size;
-        totalRow.push(Math.round(avgDayWork * 10)/10);
-        let avgTripPerDayAll = totalAllTrips > 0 ? (totalAllTrips / totalAllDayWork) : 0;
-        totalRow.push(Math.round(avgTripPerDayAll * 100)/100);
-        totalRow.push(Math.round(totalAllQty * 10)/10);
-        for (let i = 0; i < allDates.length; i++) {
-            totalRow.push(Math.round(totalQtyPerDate[i] * 10)/10, totalTripPerDate[i]);
-        }
-        for (let i = 0; i <= maxTripValue; i++) {
-            totalRow.push(totalDistPerTrip[i]);
-        }
-        exportData.push(totalRow);
-        
-        const ws = XLSX.utils.aoa_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Driver Report');
-        let now = new Date();
-        XLSX.writeFile(wb, `Driver_Report_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.xlsx`);
-    }
-    
-    async function exportAsImage() {
-        const originalTableWrapper = document.getElementById('tableWrapperForImage');
-        if (!originalTableWrapper || originalTableWrapper.children.length === 0 || !currentAggregated) {
-            alert("Tidak ada tabel untuk di-download. Pastikan data sudah di-load.");
-            return;
-        }
-        
-        exportImageBtn.innerHTML = "⏳ Processing...";
-        exportImageBtn.disabled = true;
-        
-        try {
-            const cloneWrapper = originalTableWrapper.cloneNode(true);
-            cloneWrapper.style.overflow = 'visible';
-            cloneWrapper.style.width = 'max-content';
-            cloneWrapper.style.border = '1px solid #e2edf2';
-            cloneWrapper.style.backgroundColor = 'white';
-            
-            const cloneTable = cloneWrapper.querySelector('table');
-            if (cloneTable) {
-                cloneTable.style.minWidth = 'max-content';
-                cloneTable.style.width = 'auto';
-                cloneTable.style.whiteSpace = 'nowrap';
-            }
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.top = '-9999px';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.backgroundColor = 'white';
-            tempDiv.appendChild(cloneWrapper);
-            document.body.appendChild(tempDiv);
-            
-            const canvas = await html2canvas(cloneWrapper, {
-                scale: 2.5,
-                backgroundColor: '#ffffff',
-                logging: false,
-                useCORS: true,
-                allowTaint: false,
-                windowWidth: cloneWrapper.scrollWidth,
-                windowHeight: cloneWrapper.scrollHeight
+            document.getElementById('chart-site-btn').addEventListener('click', function() {
+                chartMode = 'site';
+                this.classList.add('btn-success');
+                this.classList.remove('btn-outline');
+                document.getElementById('chart-truck-btn').classList.add('btn-outline');
+                document.getElementById('chart-truck-btn').classList.remove('btn-success');
+                refreshChart();
             });
-            
-            document.body.removeChild(tempDiv);
-            
-            const link = document.createElement('a');
-            const now = new Date();
-            const filename = `Driver_Activity_FullTable_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}.png`;
-            link.download = filename;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            
-        } catch (error) {
-            console.error('Error generating image:', error);
-            alert('Gagal membuat gambar. Silakan coba lagi.');
-        } finally {
-            exportImageBtn.innerHTML = "📸 Download Full Table Image";
-            exportImageBtn.disabled = false;
-        }
+
+            // drag & drop
+            document.addEventListener('dragover', (e) => e.preventDefault());
+            document.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (files && files.length) {
+                    const file = files[0];
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    if (['xls', 'xlsx'].includes(ext)) {
+                        loadFile(file);
+                        fileInput.files = files;
+                    } else {
+                        alert('Please ↑ Upload Excel file (.xls or .xlsx)');
+                    }
+                }
+            });
+
+            document.querySelector('.file-label').addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    fileInput.click();
+                }
+            });
+
+            resetAll();
+
+        })();
+    </script>
+
+<script>
+(function(){
+    const select = document.getElementById('theme-select');
+    if(!select) return;
+
+    const themes = ['navy','blue','emerald','slate','dark'];
+
+    function applyTheme(name){
+        document.body.classList.remove(...themes.map(t => 'theme-' + t));
+        document.body.classList.add('theme-' + name);
+        try { localStorage.setItem('truckMovementTheme', name); } catch(e){}
     }
-    
-    // Make sortTable globally accessible
-    window.sortTable = sortTable;
-    
-    areaSelect.addEventListener('change', () => { updatePlantOptionsBySelectedAreas(); refreshDashboard(); });
-    plantSelect.addEventListener('change', () => refreshDashboard());
-    startDateInput.addEventListener('change', () => refreshDashboard());
-    endDateInput.addEventListener('change', () => refreshDashboard());
-    driverTypeSelect.addEventListener('change', () => refreshDashboard());
-    resetBtn.addEventListener('click', resetFilters);
-    exportBtn.addEventListener('click', exportToExcel);
-    exportImageBtn.addEventListener('click', exportAsImage);
-    
-    function handleFile(file) {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array', defval: "" });
-                const firstSheet = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheet];
-                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-                if (!rows || rows.length < 2) throw new Error("Empty data");
-                let records = buildRecordsFromRows(rows);
-                if (records.length === 0) throw new Error("Data tidak valid");
-                rawRecords = records;
-                setDateFilterRange(rawRecords);
-                driverTypeSelect.value = 'all';
-                areaSelect.innerHTML = '';
-                plantSelect.innerHTML = '';
-                currentSortColumn = 'Total Trip';
-                currentSortDirection = 'desc';
-                updateAreaDropdown();
-                updatePlantOptionsBySelectedAreas();
-                refreshDashboard();
-                filterPanel.style.display = 'flex';
-                fileInfoSpan.innerHTML = `✅ ${file.name} (${rawRecords.length} trips)`;
-            } catch(err) { fileInfoSpan.innerHTML = `❌ Error`; document.getElementById('noDataMsg').innerHTML = `Error: ${err.message}`; filterPanel.style.display = 'none'; }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-    
-    fileInput.addEventListener('change', (e) => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
-    
-    filterPanel.style.display = 'none';
-    document.getElementById('tableContainer').style.display = 'none';
-    document.getElementById('summaryArea').style.display = 'none';
-    document.getElementById('noDataMsg').style.display = 'block';
-    insightFooter.style.display = 'none';
+
+    let saved = 'navy';
+    try { saved = localStorage.getItem('truckMovementTheme') || 'navy'; } catch(e){}
+    if(!themes.includes(saved)) saved = 'navy';
+
+    select.value = saved;
+    applyTheme(saved);
+
+    select.addEventListener('change', function(){
+        applyTheme(this.value);
+    });
+})();
 </script>
+
 </body>
 </html>
